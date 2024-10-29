@@ -1,10 +1,12 @@
 use ray::Ray;
 use vec3::{unit_vector, dot, Vec3};
 use color::Color;
+use sphere::{HitRecord, Sphere};
 
 mod ray;
 mod color;
 mod vec3;
+mod sphere;
 
 fn hit_sphere(center: Vec3, radius: f64, r: Ray) -> f64 {
     let oc = center - r.origin();
