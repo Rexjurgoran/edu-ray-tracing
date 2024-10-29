@@ -1,13 +1,25 @@
 use ray::Ray;
-use vec3::Vec3;
+use vec3::{unit_vector, dot, Vec3};
 use color::Color;
 
 mod ray;
 mod color;
 mod vec3;
 
-fn ray_color(r: crate::ray::Ray) -> crate::color::Color {
-    let unit_direction = crate::vec3::unit_vector(r.direction());
+fn hit_sphere(center: Vec3, radius: f64, r: Ray) -> bool {
+    let oc = center - r.origin();
+    let a = dot(r.direction(), r.direction());
+    let b = -2.0 * dot(r.direction(), oc);
+    let c = dot(oc, oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant >= 0.0
+}
+
+fn ray_color(r: Ray) -> Color {
+    if hit_sphere(Vec3{x: 0.0, y: 0.0, z: -1.0}, 0.5,r) {
+        return Color{r: 1.0, g: 0.0, b: 0.0}
+    }
+    let unit_direction = unit_vector(r.direction());
     let a = 0.5 * (unit_direction.y + 1.0);
     (1.0 - a) * Color { r: 1.0, g: 1.0, b: 1.0 } + a * Color { r: 0.5, g: 0.7, b: 1.0 }
 }
