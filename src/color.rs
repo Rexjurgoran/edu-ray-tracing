@@ -4,6 +4,10 @@ pub struct Color{
     pub b: f64
 }
 
+pub fn color(r: f64, g: f64, b: f64) -> Color {
+    Color{r, g, b}
+}
+
 pub fn write_color(color:Color){
 
     let ir = (255.999 * color.r) as i32;
