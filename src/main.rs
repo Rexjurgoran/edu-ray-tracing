@@ -5,6 +5,7 @@ use ray::{Ray, ray};
 use vec3::{unit_vector, Vec3, vec3};
 use color::{Color, color};
 use sphere::{HitRecord, Hittable, Sphere};
+use interval::interval;
 
 mod rtweekend;
 mod ray;
@@ -12,10 +13,11 @@ mod color;
 mod vec3;
 mod sphere;
 mod hittable_list;
+mod interval;
 
 fn ray_color(r: Ray, world: &impl Hittable) -> Color {
     let mut rec = HitRecord::default();
-    if world.hit(&r, 0.0, INFINITY, &mut rec){
+    if world.hit(&r, interval( 0.0, INFINITY), &mut rec){
         return 0.5 * (rec.normal.to_color() + color(1.0, 1.0, 1.0))
     }
 
