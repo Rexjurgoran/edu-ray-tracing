@@ -6,7 +6,7 @@ use crate::{
     ray::{ray, Ray},
     rtweekend::random_double,
     sphere::{HitRecord, Hittable},
-    vec3::{unit_vector, vec3, Vec3},
+    vec3::{random_on_hemisphere, unit_vector, vec3, Vec3},
 };
 
 pub struct Camera {
@@ -118,7 +118,8 @@ fn sample_square() -> Vec3 {
 fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
     let mut rec = HitRecord::default();
     if world.hit(&r, interval(0.0, INFINITY), &mut rec) {
-        return 0.5 * (rec.normal.to_color() + color(1.0, 1.0, 1.0));
+        let direction = random_on_hemisphere(&rec.normal);
+        return 0.5 * ray_color(&ray(&rec.p, direction), world);
     }
 
     let unit_direction = unit_vector(r.direction());
