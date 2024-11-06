@@ -13,6 +13,7 @@ pub struct Camera {
     pub aspect_ratio: f64,      // Ratio of image width over height
     pub image_width: i32,       // Rendered image width in pixel count
     pub samples_per_pixel: i32, // Count of random samples for each pixel
+    pub max_depth: i32,         // Maximum number of ray bounces into scene
 
     image_height: i32,       // Rendered image height
     pixel_sample_scale: f64, // Color scale factor for a sum of pixel samples
@@ -28,6 +29,7 @@ impl Default for Camera {
             aspect_ratio: 1.0,
             image_width: 100,
             samples_per_pixel: 10,
+            max_depth: 10,
             image_height: Default::default(),
             pixel_sample_scale: Default::default(),
             center: Default::default(),
@@ -48,7 +50,7 @@ impl Camera {
                 let mut pixel_color = color(0.0, 0.0, 0.0);
                 for _sample in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
-                    pixel_color += ray_color(&r, world)
+                    pixel_color += ray_color(&r, self.max_depth, world)
                 }
                 write_color(self.pixel_sample_scale * pixel_color);
             }
@@ -62,7 +64,7 @@ impl Camera {
         } else {
             self.image_height
         };
-        
+
         self.pixel_sample_scale = 1.0 / self.samples_per_pixel as f64;
 
         self.center = vec3(0.0, 0.0, 0.0);
@@ -115,11 +117,17 @@ fn sample_square() -> Vec3 {
     vec3(random_double() - 0.5, random_double() - 0.5, 0.0)
 }
 
-fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+fn ray_color(r: &Ray, depth: i32, world: &dyn Hittable) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered
+    if depth <= 0 {
+        return color(0.0, 0.0, 0.0);
+    }
+
     let mut rec = HitRecord::default();
+
     if world.hit(&r, interval(0.0, INFINITY), &mut rec) {
         let direction = random_on_hemisphere(&rec.normal);
-        return 0.5 * ray_color(&ray(&rec.p, direction), world);
+        return 0.5 * ray_color(&ray(&rec.p, direction), depth - 1, world);
     }
 
     let unit_direction = unit_vector(r.direction());
