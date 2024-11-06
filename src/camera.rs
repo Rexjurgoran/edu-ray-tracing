@@ -125,7 +125,7 @@ fn ray_color(r: &Ray, depth: i32, world: &dyn Hittable) -> Color {
 
     let mut rec = HitRecord::default();
 
-    if world.hit(&r, interval(0.0, INFINITY), &mut rec) {
+    if world.hit(&r, interval(0.001, INFINITY), &mut rec) {
         let direction = random_on_hemisphere(&rec.normal);
         return 0.5 * ray_color(&ray(&rec.p, direction), depth - 1, world);
     }
