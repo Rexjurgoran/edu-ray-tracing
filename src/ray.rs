@@ -1,15 +1,16 @@
 use crate::vec3::Vec3;
 
-pub fn ray(orig: &Vec3, dir: Vec3) -> Ray {
-    Ray{orig, dir}
+pub fn ray(orig: Vec3, dir: Vec3) -> Ray {
+    Ray { orig, dir }
 }
 
-pub struct Ray<'a>{
-    pub orig: &'a Vec3,
-    pub dir: Vec3
+#[derive(Default)]
+pub struct Ray {
+    pub orig: Vec3,
+    pub dir: Vec3,
 }
 
-impl Ray<'_> {
+impl Ray {
     pub fn origin(&self) -> &Vec3 {
         &self.orig
     }

@@ -1,5 +1,6 @@
 use crate::interval::interval;
 
+#[derive(Clone, Default)]
 pub struct Color {
     pub r: f64,
     pub g: f64,
@@ -10,12 +11,28 @@ pub fn color(r: f64, g: f64, b: f64) -> Color {
     Color { r, g, b }
 }
 
+fn linear_to_gamma(linear_component: f64) -> f64 {
+    if linear_component > 0.0 {
+        return f64::sqrt(linear_component);
+    }
+    0.0
+}
+
 pub fn write_color(color: Color) {
+    let mut r = color.r;
+    let mut g = color.g;
+    let mut b = color.b;
+
+    // Apply a linear to gamma transform for gamma 2
+    r = linear_to_gamma(r);
+    g = linear_to_gamma(g);
+    b = linear_to_gamma(b);
+
     // Translate the [0,1] component values to the byte range [0,255]
     let intensity = interval(0.000, 0.999);
-    let ir = (255.999 * intensity.clamp(color.r)) as i32;
-    let ig = (255.999 * intensity.clamp(color.g)) as i32;
-    let ib = (255.999 * intensity.clamp(color.b)) as i32;
+    let ir = (255.999 * intensity.clamp(r)) as i32;
+    let ig = (255.999 * intensity.clamp(g)) as i32;
+    let ib = (255.999 * intensity.clamp(b)) as i32;
 
     // Write out the pixel color components.
     print!("{} {} {}\n", ir, ig, ib);
@@ -58,5 +75,13 @@ impl std::ops::AddAssign for Color {
         self.r += rhs.r;
         self.g += rhs.g;
         self.b += rhs.b;
+    }
+}
+
+impl std::ops::Mul for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        color(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
     }
 }

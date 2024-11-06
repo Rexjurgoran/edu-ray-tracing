@@ -1,4 +1,4 @@
-use crate::{interval::{self, Interval, interval}, ray::Ray, sphere::{HitRecord, Hittable}};
+use crate::{interval::{Interval, interval}, ray::Ray, sphere::{HitRecord, Hittable}};
 
 #[derive(Default)]
 pub struct HittableList{

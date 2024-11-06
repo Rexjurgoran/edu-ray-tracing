@@ -27,6 +27,11 @@ impl Vec3 {
     pub fn to_color(&self) -> Color {
         color(self.x, self.y, self.z)
     }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        (f64::abs(self.x) < s) && (f64::abs(self.y) < s) && (f64::abs(self.z) < s)
+    }
 }
 
 impl ops::Add for Vec3 {
@@ -133,6 +138,18 @@ impl std::ops::Sub for &Vec3 {
     }
 }
 
+impl std::ops::Sub<Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Vec3) -> Self::Output {
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
 impl std::ops::Div<i32> for Vec3 {
     type Output = Vec3;
 
@@ -205,7 +222,7 @@ fn random_from(min: f64, max: f64) -> Vec3 {
     )
 }
 
-fn random_unit_vector() -> Vec3 {
+pub fn random_unit_vector() -> Vec3 {
     loop {
         let p = random_from(-1.0, 1.0);
         let lensq = p.length_squared();
@@ -222,4 +239,8 @@ pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
     } else {
         return -on_unit_sphere;
     }
+}
+
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    return v - 2.0 * dot(v, n) * n;
 }
