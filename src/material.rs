@@ -2,7 +2,7 @@ use crate::{
     color::Color,
     ray::{ray, Ray},
     sphere::HitRecord,
-    vec3::{random_unit_vector, reflect},
+    vec3::{dot, random_unit_vector, reflect, unit_vector},
 };
 
 #[derive(Clone, Default)]
@@ -16,10 +16,15 @@ pub enum Mat {
 pub struct Material {
     material: Mat,
     albedo: Color,
+    fuzz: f64,
 }
 
-pub fn material(material: Mat, albedo: Color) -> Material {
-    Material { material, albedo }
+pub fn material(material: Mat, albedo: Color, fuzz: f64) -> Material {
+    Material {
+        material,
+        albedo,
+        fuzz,
+    }
 }
 
 impl Material {
@@ -60,9 +65,10 @@ impl Material {
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
-        let reflected = reflect(r_in.direction(), &rec.normal);
+        let mut reflected = reflect(r_in.direction(), &rec.normal);
+        reflected = unit_vector(&reflected) + (self.fuzz * random_unit_vector());
         *scattered = ray(rec.p.clone(), reflected);
         *attenuation = self.albedo.clone();
-        true
+        dot(scattered.direction(), &rec.normal) > 0.0
     }
 }
