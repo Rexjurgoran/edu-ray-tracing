@@ -19,10 +19,10 @@ mod material;
 fn main() {   
     let mut world= HittableList::default();
 
-    let material_ground = material(Mat::Lambertian,color(0.8, 0.8, 0.0), 0.0);
-    let material_center = material(Mat::Lambertian,color(0.1, 0.2, 0.5), 0.0);
-    let material_left = material(Mat::Metal,color(0.8, 0.8, 0.8), 0.3);
-    let material_right = material(Mat::Metal,color(0.8, 0.6, 0.2), 1.0);
+    let material_ground = material(Mat::Lambertian,color(0.8, 0.8, 0.0), Default::default(), Default::default());
+    let material_center = material(Mat::Lambertian,color(0.1, 0.2, 0.5), Default::default(), Default::default());
+    let material_left = material(Mat::Dielectric,color(0.8, 0.8, 0.8), 0.3, rtweekend::REFRACTION_GLASS);
+    let material_right = material(Mat::Metal,color(0.8, 0.6, 0.2), 1.0, Default::default());
     
     world.add(sphere(vec3(0.0, -100.5, -1.0), 100.0, material_ground));
     world.add(sphere(vec3(0.0, 0.0, -1.2), 0.5, material_center));

@@ -2,6 +2,9 @@ use rand::prelude::*;
 
 // Constants
 const PI: f64 = 3.1415926535897932385;
+pub const REFRACTION_GLASS: f64 = 1.50;
+pub const REFRACTION_WATER: f64 = 1.33;
+pub const REFRACTION_AIR: f64 = 1.00;
 
 // Utility Functions
 fn degrees_to_radians(degrees: f64) -> f64 {
