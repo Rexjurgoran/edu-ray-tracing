@@ -66,6 +66,14 @@ impl ops::Add<Vec3> for &Vec3 {
     }
 }
 
+impl std::ops::Mul for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        vec3(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z)
+    }
+}
+
 impl std::ops::Mul<f64> for Vec3 {
     type Output = Vec3;
 
@@ -237,11 +245,11 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
         u.x * v.y - u.y * v.x)
 }
 
-fn random() -> Vec3 {
+pub fn random() -> Vec3 {
     vec3(random_double(), random_double(), random_double())
 }
 
-fn random_from(min: f64, max: f64) -> Vec3 {
+pub fn random_from(min: f64, max: f64) -> Vec3 {
     vec3(
         random_double_from(min, max),
         random_double_from(min, max),
@@ -255,6 +263,15 @@ pub fn random_unit_vector() -> Vec3 {
         let lensq = p.length_squared();
         if 1e-160 < lensq && lensq <= 1.0 {
             return p / f64::sqrt(lensq);
+        }
+    }
+}
+
+pub fn random_in_unit_disk() -> Vec3{
+    loop {
+        let p = vec3(random_double_from(-1.0, 1.0), random_double_from(-1.0, 1.0), 0.0);
+        if p.length_squared() < 1.0 {
+            return p;
         }
     }
 }
