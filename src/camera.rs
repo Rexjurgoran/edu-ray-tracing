@@ -4,7 +4,7 @@ use crate::{
     color::{color, write_color, Color},
     interval,
     ray::{ray, Ray},
-    rtweekend::random_double,
+    rtweekend::{degrees_to_radians, random_double},
     sphere::{HitRecord, Hittable},
     vec3::{unit_vector, vec3, Vec3},
 };
@@ -14,6 +14,7 @@ pub struct Camera {
     pub image_width: i32,       // Rendered image width in pixel count
     pub samples_per_pixel: i32, // Count of random samples for each pixel
     pub max_depth: i32,         // Maximum number of ray bounces into scene
+    pub vfov: f64,              // Vertical view angle (field of view)
 
     image_height: i32,       // Rendered image height
     pixel_sample_scale: f64, // Color scale factor for a sum of pixel samples
@@ -30,6 +31,7 @@ impl Default for Camera {
             image_width: 100,
             samples_per_pixel: 10,
             max_depth: 10,
+            vfov: 90.0,
             image_height: Default::default(),
             pixel_sample_scale: Default::default(),
             center: Default::default(),
@@ -71,7 +73,9 @@ impl Camera {
 
         // Determine viewport dimensions.
         let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let theta = degrees_to_radians(self.vfov);
+        let h = f64::tan(theta / 2.0);
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * (self.image_width as f64 / self.image_height as f64);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.

@@ -31,6 +31,10 @@ pub fn material(material: Mat, albedo: Color, fuzz: f64, refraction_index: f64) 
     }
 }
 
+pub fn material_lambertian(albedo: Color) -> Material {
+    material(Mat::Lambertian, albedo, Default::default(), Default::default())
+}
+
 impl Material {
     pub fn scatter(
         &self,

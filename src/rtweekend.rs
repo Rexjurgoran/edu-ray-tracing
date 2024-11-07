@@ -7,7 +7,7 @@ pub const REFRACTION_WATER: f64 = 1.33;
 pub const REFRACTION_AIR: f64 = 1.00;
 
 // Utility Functions
-fn degrees_to_radians(degrees: f64) -> f64 {
+pub fn degrees_to_radians(degrees: f64) -> f64 {
     degrees * PI / 180.0
 }
 
