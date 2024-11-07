@@ -3,7 +3,7 @@ use crate::{
     ray::{ray, Ray},
     rtweekend::random_double,
     sphere::HitRecord,
-    vec3::{dot, random_unit_vector, reflect, refract, unit_vector, Vec3},
+    vec3::{dot, random_unit_vector, reflect, refract, unit_vector},
 };
 
 #[derive(Clone, Default)]
@@ -48,7 +48,7 @@ impl Material {
 
     fn scatter_lambertian(
         &self,
-        r_in: &Ray,
+        _r_in: &Ray,
         rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
