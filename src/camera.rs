@@ -3,7 +3,7 @@ use std::f64::INFINITY;
 use crate::{
     color::{color, write_color, Color},
     interval,
-    ray::{ray, Ray},
+    ray::{ray, ray_with_time, Ray},
     rtweekend::{degrees_to_radians, random_double},
     sphere::{HitRecord, Hittable},
     vec3::{cross, random_in_unit_disk, unit_vector, vec3, Vec3},
@@ -134,8 +134,9 @@ impl Camera {
 
         let ray_origin = if self.defocus_angle <= 0.0 { self.center.clone() } else { self.defocus_disk_sample() };
         let ray_direction = &pixel_sample - &ray_origin;
+        let ray_time = random_double();
 
-        ray(ray_origin, ray_direction)
+        ray_with_time(ray_origin, ray_direction, ray_time)
     }
 
     fn defocus_disk_sample(&self) -> Vec3 {

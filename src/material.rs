@@ -2,7 +2,7 @@ use std::default;
 
 use crate::{
     color::{color, Color},
-    ray::{ray, Ray},
+    ray::{ray, ray_with_time, Ray},
     rtweekend::random_double,
     sphere::HitRecord,
     vec3::{dot, random_unit_vector, reflect, refract, unit_vector},
@@ -62,7 +62,7 @@ impl Material {
 
     fn scatter_lambertian(
         &self,
-        _r_in: &Ray,
+        r_in: &Ray,
         rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
@@ -72,7 +72,7 @@ impl Material {
         if scatter_direction.near_zero() {
             scatter_direction = rec.normal.clone();
         }
-        *scattered = ray(rec.p.clone(), scatter_direction);
+        *scattered = ray_with_time(rec.p.clone(), scatter_direction, r_in.time());
         *attenuation = self.albedo.clone();
         true
     }
@@ -86,7 +86,7 @@ impl Material {
     ) -> bool {
         let mut reflected = reflect(r_in.direction(), &rec.normal);
         reflected = unit_vector(&reflected) + (self.fuzz * random_unit_vector());
-        *scattered = ray(rec.p.clone(), reflected);
+        *scattered = ray_with_time(rec.p.clone(), reflected, r_in.time());
         *attenuation = self.albedo.clone();
         dot(scattered.direction(), &rec.normal) > 0.0
     }
@@ -116,7 +116,7 @@ impl Material {
             refract(&unit_direction, &rec.normal, ri)
         };
 
-        *scattered = ray(rec.p.clone(), direction);
+        *scattered = ray_with_time(rec.p.clone(), direction, r_in.time());
         true
     }
 

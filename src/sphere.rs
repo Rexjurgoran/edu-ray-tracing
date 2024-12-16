@@ -1,8 +1,10 @@
+use std::io::Cursor;
+
 use crate::{
     interval::Interval,
     material::Material,
-    ray::Ray,
-    vec3::{dot, Vec3},
+    ray::{ray, Ray},
+    vec3::{dot, vec3, Vec3},
 };
 
 pub trait Hittable {
@@ -45,22 +47,33 @@ impl HitRecord {
 }
 
 pub struct Sphere {
-    pub center: Vec3,
+    pub center: Ray,
     pub radius: f64,
     mat: Material,
 }
 
+// Stationary Sphere
 pub fn sphere(center: Vec3, radius: f64, mat: Material) -> Sphere {
     Sphere {
-        center,
+        center: ray(center, vec3(0.0, 0.0, 0.0)),
         radius,
         mat,
     }
 }
 
+// Moving Sphere
+pub fn sphere_moving(center1: Vec3, center2: Vec3, radius: f64, mat: Material) -> Sphere {
+    Sphere {
+        center: ray(center1.clone(), center2 - center1),
+        radius,
+        mat
+    }
+}
+
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
-        let oc = &self.center - r.origin();
+        let current_center = self.center.at(r.time());
+        let oc = &current_center - r.origin();
         let a = r.direction().length_squared();
         let h = dot(&r.direction(), &oc);
         let c = oc.length_squared() - self.radius * self.radius;
@@ -82,7 +95,7 @@ impl Hittable for Sphere {
 
         rec.t = root;
         rec.p = r.at(rec.t);
-        let outward_normal = (&rec.p - &self.center) / self.radius;
+        let outward_normal = (&rec.p - current_center) / self.radius;
         rec.set_face_normal(r, &outward_normal);
         rec.mat = self.mat.clone();
 

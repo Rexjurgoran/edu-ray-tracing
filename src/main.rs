@@ -6,7 +6,7 @@ use hittable_list::HittableList;
 use interval::interval;
 use material::{material_dielectric, material_lambertian, material_metal, Material};
 use rtweekend::{random_double, random_double_from};
-use sphere::sphere;
+use sphere::{sphere, sphere_moving};
 use vec3::{random, random_from, vec3, Vec3};
 
 mod camera;
@@ -53,10 +53,11 @@ fn main() {
 
             if (&center - vec3(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 {
-                    // deffuse
+                    // diffuse
                     let albedo = random() * random();
                     sphere_material = material_lambertian(albedo.to_color());
-                    world.add(sphere(center, 0.2, sphere_material));
+                    let center2 = center.clone() + vec3(0.0, random_double_from(0.0,0.5), 0.0);
+                    world.add(sphere_moving(center, center2, 0.2, sphere_material));
                 } else if choose_mat < 0.95  {
                     // metal
                     let albedo = random_from(0.5, 1.0);
@@ -83,8 +84,8 @@ fn main() {
 
     let mut cam: Camera = Default::default();
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 1200;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 50;
 
     cam.vfov = 20.0;
