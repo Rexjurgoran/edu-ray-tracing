@@ -3,7 +3,7 @@ use std::f64::INFINITY;
 use crate::{
     color::{color, write_color, Color},
     interval,
-    ray::{ray, ray_with_time, Ray},
+    ray::{ray_with_time, Ray},
     rtweekend::{degrees_to_radians, random_double},
     sphere::{HitRecord, Hittable},
     vec3::{cross, random_in_unit_disk, unit_vector, vec3, Vec3},

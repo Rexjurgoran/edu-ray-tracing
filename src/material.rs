@@ -1,8 +1,7 @@
-use std::default;
 
 use crate::{
     color::{color, Color},
-    ray::{ray, ray_with_time, Ray},
+    ray::{ray_with_time, Ray},
     rtweekend::random_double,
     sphere::HitRecord,
     vec3::{dot, random_unit_vector, reflect, refract, unit_vector},

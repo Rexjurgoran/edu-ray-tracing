@@ -1,13 +1,12 @@
-use std::{f64::consts::PI, vec};
 
 use camera::Camera;
 use color::color;
 use hittable_list::HittableList;
 use interval::interval;
-use material::{material_dielectric, material_lambertian, material_metal, Material};
+use material::{material_dielectric, material_lambertian, material_metal};
 use rtweekend::{random_double, random_double_from};
 use sphere::{sphere, sphere_moving};
-use vec3::{random, random_from, vec3, Vec3};
+use vec3::{random, random_from, vec3};
 
 mod camera;
 mod color;
@@ -49,7 +48,7 @@ fn main() {
         for b in -11..11 {
             let choose_mat = random_double();
             let center = vec3(a as f64 + 0.9 * random_double(), 0.2, b as f64 + 0.9 * random_double());
-            let mut sphere_material = Material::default();
+            let sphere_material;
 
             if (&center - vec3(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 {
