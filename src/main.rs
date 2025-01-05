@@ -1,4 +1,3 @@
-
 use camera::Camera;
 use color::color;
 use hittable_list::HittableList;
@@ -8,6 +7,7 @@ use rtweekend::{random_double, random_double_from};
 use sphere::{sphere, sphere_moving};
 use vec3::{random, random_from, vec3};
 
+mod aabb;
 mod camera;
 mod color;
 mod hittable_list;
@@ -47,7 +47,11 @@ fn main() {
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat = random_double();
-            let center = vec3(a as f64 + 0.9 * random_double(), 0.2, b as f64 + 0.9 * random_double());
+            let center = vec3(
+                a as f64 + 0.9 * random_double(),
+                0.2,
+                b as f64 + 0.9 * random_double(),
+            );
             let sphere_material;
 
             if (&center - vec3(4.0, 0.2, 0.0)).length() > 0.9 {
@@ -55,9 +59,9 @@ fn main() {
                     // diffuse
                     let albedo = random() * random();
                     sphere_material = material_lambertian(albedo.to_color());
-                    let center2 = center.clone() + vec3(0.0, random_double_from(0.0,0.5), 0.0);
+                    let center2 = center.clone() + vec3(0.0, random_double_from(0.0, 0.5), 0.0);
                     world.add(sphere_moving(center, center2, 0.2, sphere_material));
-                } else if choose_mat < 0.95  {
+                } else if choose_mat < 0.95 {
                     // metal
                     let albedo = random_from(0.5, 1.0);
                     let fuzz = random_double_from(0.0, 0.5);
