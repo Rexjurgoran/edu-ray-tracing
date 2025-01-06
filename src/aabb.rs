@@ -7,6 +7,7 @@ use crate::{
 };
 
 // Struct for an axis-aligned bounding box, definde by intervals in all 3 spacial dimensions
+#[derive(Default)]
 pub struct Aabb {
     pub x: Interval,
     pub y: Interval,
@@ -42,10 +43,10 @@ pub fn aabb_from_point(a: Vec3, b: Vec3) -> Aabb {
 }
 
 pub fn aabb_from_aabb(box0: &Aabb, box1: &Aabb) -> Aabb {
-    Aabb { 
-        x: interval_from_interval(&box0.x, &box1.x), 
-        y: interval_from_interval(&box0.y, &box1.y), 
-        z: interval_from_interval(&box0.z, &box1.z) 
+    Aabb {
+        x: interval_from_interval(&box0.x, &box1.x),
+        y: interval_from_interval(&box0.y, &box1.y),
+        z: interval_from_interval(&box0.z, &box1.z),
     }
 }
 
