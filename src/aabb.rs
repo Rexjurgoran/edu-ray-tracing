@@ -1,7 +1,7 @@
 use std::i32;
 
 use crate::{
-    interval::{interval, Interval},
+    interval::{interval, interval_from_interval, Interval},
     ray::Ray,
     vec3::Vec3,
 };
@@ -38,6 +38,14 @@ pub fn aabb_from_point(a: Vec3, b: Vec3) -> Aabb {
         } else {
             interval(b.z, a.z)
         },
+    }
+}
+
+pub fn aabb_from_aabb(box0: &Aabb, box1: &Aabb) -> Aabb {
+    Aabb { 
+        x: interval_from_interval(&box0.x, &box1.x), 
+        y: interval_from_interval(&box0.y, &box1.y), 
+        z: interval_from_interval(&box0.z, &box1.z) 
     }
 }
 

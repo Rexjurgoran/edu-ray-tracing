@@ -1,13 +1,11 @@
 
 use crate::{
-    interval::Interval,
-    material::Material,
-    ray::{ray, Ray},
-    vec3::{dot, vec3, Vec3},
+    aabb::{aabb_from_aabb, aabb_from_point, Aabb}, interval::Interval, material::Material, ray::{ray, Ray}, vec3::{dot, vec3, Vec3}
 };
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
+    fn bounding_box(&self) -> &Aabb;
 }
 
 #[derive(Clone)]
@@ -49,23 +47,31 @@ pub struct Sphere {
     pub center: Ray,
     pub radius: f64,
     mat: Material,
+    bbox: Aabb,
 }
 
 // Stationary Sphere
 pub fn sphere(center: Vec3, radius: f64, mat: Material) -> Sphere {
+    let rvec = vec3(radius, radius, radius);
     Sphere {
-        center: ray(center, vec3(0.0, 0.0, 0.0)),
+        center: ray(center.clone(), vec3(0.0, 0.0, 0.0)),
         radius,
         mat,
+        bbox: aabb_from_point(center.clone() - rvec.clone(), center + rvec),
     }
 }
 
 // Moving Sphere
 pub fn sphere_moving(center1: Vec3, center2: Vec3, radius: f64, mat: Material) -> Sphere {
+    let rvec = vec3(radius, radius, radius);
+    let center = ray(center1.clone(), center2 - center1);
+    let box1 = &aabb_from_point(center.at(0.0) - rvec.clone(), center.at(0.0) + rvec.clone());
+    let box2 = &aabb_from_point(center.at(1.0) - rvec.clone(), center.at(1.0) + rvec);
     Sphere {
-        center: ray(center1.clone(), center2 - center1),
+        center,
         radius,
-        mat
+        mat,
+        bbox: aabb_from_aabb(box1, box2)
     }
 }
 
@@ -99,5 +105,9 @@ impl Hittable for Sphere {
         rec.mat = self.mat.clone();
 
         true
+    }
+
+    fn bounding_box(&self) -> &Aabb {
+        &self.bbox
     }
 }

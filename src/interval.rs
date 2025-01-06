@@ -7,6 +7,14 @@ pub fn interval(min: f64, max: f64) -> Interval {
     Interval { min, max }
 }
 
+pub fn interval_from_interval(a: &Interval, b: &Interval) -> Interval {
+    // Create athe interval tightly enclosing the two input intervals.
+    Interval {
+        min: if a.min <= b.min { a.min } else { b.min },
+        max: if a.max >= b.max { a.max } else { b.max },
+    }
+}
+
 impl Interval {
     pub fn surrounds(&self, x: f64) -> bool {
         self.min < x && x < self.max
