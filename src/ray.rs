@@ -8,7 +8,7 @@ pub fn ray_with_time(orig: Vec3, dir: Vec3, tm: f64) -> Ray {
     Ray { orig, dir, tm }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Ray {
     pub orig: Vec3,
     pub dir: Vec3,

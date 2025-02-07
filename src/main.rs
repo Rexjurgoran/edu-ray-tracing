@@ -17,6 +17,7 @@ mod ray;
 mod rtweekend;
 mod sphere;
 mod vec3;
+mod bvh;
 
 fn main() {
     let mut world = HittableList::default();
