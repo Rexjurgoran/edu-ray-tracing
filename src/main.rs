@@ -1,6 +1,9 @@
+use std::rc::Rc;
+
+use bvh::{bvh_node, bvh_node_from_list, BvhNode};
 use camera::Camera;
 use color::color;
-use hittable_list::HittableList;
+use hittable_list::{hittable_list, HittableList};
 use interval::interval;
 use material::{material_dielectric, material_lambertian, material_metal};
 use rtweekend::{random_double, random_double_from};
@@ -43,7 +46,7 @@ fn main() {
     // world.add(sphere(vec3(1.0, 0.0, -1.0), 0.5, material_right));
 
     let ground_material = material_lambertian(color(0.5, 0.5, 0.5));
-    world.add(sphere(vec3(0.0, -1000.0, 0.0), -1000.0, ground_material));
+    world.add(Rc::new(sphere(vec3(0.0, -1000.0, 0.0), -1000.0, ground_material)));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -61,30 +64,34 @@ fn main() {
                     let albedo = random() * random();
                     sphere_material = material_lambertian(albedo.to_color());
                     let center2 = center.clone() + vec3(0.0, random_double_from(0.0, 0.5), 0.0);
-                    world.add(sphere_moving(center, center2, 0.2, sphere_material));
+                    world.add(Rc::new(sphere_moving(center, center2, 0.2, sphere_material)));
                 } else if choose_mat < 0.95 {
                     // metal
                     let albedo = random_from(0.5, 1.0);
                     let fuzz = random_double_from(0.0, 0.5);
                     sphere_material = material_metal(albedo.to_color(), fuzz);
-                    world.add(sphere(center, 0.2, sphere_material));
+                    world.add(Rc::new(sphere(center, 0.2, sphere_material)));
                 } else {
                     // glass
                     sphere_material = material_dielectric(rtweekend::REFRACTION_GLASS);
-                    world.add(sphere(center, 0.2, sphere_material));
+                    world.add(Rc::new(sphere(center, 0.2, sphere_material)));
                 }
             }
         }
     }
 
     let material1 = material_dielectric(rtweekend::REFRACTION_GLASS);
-    world.add(sphere(vec3(0.0, 1.0, 0.0), 1.0, material1));
+    world.add(Rc::new(sphere(vec3(0.0, 1.0, 0.0), 1.0, material1)));
 
     let material2 = material_lambertian(color(0.4, 0.2, 0.1));
-    world.add(sphere(vec3(-4.0, 1.0, 0.0), 1.0, material2));
+    world.add(Rc::new(sphere(vec3(-4.0, 1.0, 0.0), 1.0, material2)));
 
     let material3 = material_metal(color(0.7, 0.6, 0.5), 0.0);
-    world.add(sphere(vec3(4.0, 1.0, 0.0), 1.0, material3));
+    world.add(Rc::new(sphere(vec3(4.0, 1.0, 0.0), 1.0, material3)));
+
+    let mut nodes = Vec::new();
+    let node = bvh_node_from_list(&mut world, &mut nodes);
+    world = hittable_list(Rc::new(node));
 
     let mut cam: Camera = Default::default();
     cam.aspect_ratio = 16.0 / 9.0;

@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     aabb::{aabb_from_aabb, Aabb},
     interval::{interval, Interval},
@@ -7,16 +9,25 @@ use crate::{
 
 #[derive(Default)]
 pub struct HittableList {
-    pub objects: Vec<Box<dyn Hittable>>,
+    pub objects: Vec<Rc<dyn Hittable>>,
 
     bbox: Aabb,
 }
 
 impl HittableList {
-    pub fn add(&mut self, object: impl Hittable + 'static) {
+
+
+
+    pub fn add(&mut self, object: Rc<dyn Hittable>) {
         self.bbox = aabb_from_aabb(&self.bbox, object.bounding_box());
-        self.objects.push(Box::new(object));
+        self.objects.push(object);
     }
+}
+
+pub fn hittable_list(object: Rc<dyn Hittable>) -> HittableList {
+    let mut hittable_list = HittableList{ objects: Default::default(), bbox: Default::default() };
+    hittable_list.add(object);
+    hittable_list
 }
 
 impl Hittable for HittableList {
