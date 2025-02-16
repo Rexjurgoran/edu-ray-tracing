@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use bvh::{bvh_node, bvh_node_from_list, BvhNode};
+use bvh::bvh_node_from_list;
 use camera::Camera;
 use color::color;
 use hittable_list::{hittable_list, HittableList};
