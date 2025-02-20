@@ -51,6 +51,24 @@ pub fn aabb_from_aabb(box0: &Aabb, box1: &Aabb) -> Aabb {
 }
 
 impl Aabb {
+
+    pub fn empty() -> Aabb {
+        Aabb { x: Interval::empty(), y: Interval::empty(), z: Interval::empty() }
+    }
+
+    pub fn universe() -> Aabb {
+        Aabb { x: Interval::universe(), y: Interval::universe(), z: Interval::universe() }
+    }
+
+    pub fn longest_axis(&self) -> i32 {
+        // Returns the index of the longest axis of the bounding box.
+        if self.x.size() > self.z.size() {
+            return if self.x.size() > self.y.size() { 0 } else { 2 };
+        } else {
+            return if self.y.size() > self.z.size() { 1 } else { 2 };
+        }
+    }
+
     pub fn axis_interval(&self, n: i32) -> &Interval {
         match n {
             1 => &self.y,

@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, rc::Rc};
 
-use crate::{aabb::{aabb_from_aabb, Aabb}, hittable_list::HittableList, interval::{interval, Interval}, ray::Ray, rtweekend::random_int_from, sphere::Hittable};
+use crate::{aabb::{self, aabb_from_aabb, aabb_from_interval, Aabb}, hittable_list::HittableList, interval::{interval, Interval}, ray::Ray, rtweekend::random_int_from, sphere::Hittable};
 
 pub struct BvhNode {
     left: Rc<dyn Hittable>,
@@ -14,10 +14,17 @@ pub fn bvh_node_from_list(hittable_list: &mut HittableList, nodes: &mut Vec<BvhN
 }
 
 pub fn bvh_node(objects: &mut Vec<Rc<dyn Hittable>>, nodes: &mut Vec<BvhNode>, start: usize, end: usize) -> BvhNode {
+    // Build the bounding box of the span of source objects.
+    let mut bbox = Aabb::empty();
+
+    for object_index in start..end {
+        bbox = aabb_from_aabb(&bbox, objects[object_index].bounding_box());
+    }
+
     let object_span = end - start;
     let mut left = objects[start].clone();
     let mut right = objects[start].clone();
-    let axis = random_int_from(0, 2);
+    let axis = bbox.longest_axis();
 
     let comparator = if axis == 0 {
         box_x_compare
@@ -41,7 +48,6 @@ pub fn bvh_node(objects: &mut Vec<Rc<dyn Hittable>>, nodes: &mut Vec<BvhNode>, s
         right = Rc::new(bvh_node(objects, nodes, mid, end));
     }
 
-    let bbox = aabb_from_aabb(left.bounding_box(), right.bounding_box());
     BvhNode{left, right, bbox}
 }
 
