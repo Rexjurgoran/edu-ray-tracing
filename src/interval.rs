@@ -1,3 +1,5 @@
+use std::f64::INFINITY;
+
 #[derive(Default, Clone)]
 pub struct Interval {
     pub min: f64,
@@ -17,6 +19,14 @@ pub fn interval_from_interval(a: &Interval, b: &Interval) -> Interval {
 }
 
 impl Interval {
+    pub fn empty() -> Interval {
+        Interval { min: INFINITY, max: - INFINITY }
+    }
+
+    pub fn universe() -> Interval {
+        Interval { min: - INFINITY, max: INFINITY }
+    }
+
     pub fn surrounds(&self, x: f64) -> bool {
         self.min < x && x < self.max
     }
@@ -35,5 +45,9 @@ impl Interval {
     pub fn expand(&self, delta: f64) -> Interval {
         let padding = delta / 2.0;
         interval(self.min - padding, self.max + padding)
+    }
+
+    pub fn size(&self) -> f64 {
+        self.max - self.min
     }
 }
