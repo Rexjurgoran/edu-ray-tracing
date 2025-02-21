@@ -50,28 +50,30 @@ pub struct Sphere {
     bbox: Aabb,
 }
 
-// Stationary Sphere
-pub fn sphere(center: Vec3, radius: f64, mat: Material) -> Sphere {
-    let rvec = vec3(radius, radius, radius);
-    Sphere {
-        center: ray(center.clone(), vec3(0.0, 0.0, 0.0)),
-        radius,
-        mat,
-        bbox: aabb_from_point(center.clone() - rvec.clone(), center + rvec),
+impl Sphere {
+    // Stationary Sphere
+    pub fn new(center: Vec3, radius: f64, mat: Material) -> Sphere {
+        let rvec = vec3(radius, radius, radius);
+        Sphere {
+            center: ray(center.clone(), vec3(0.0, 0.0, 0.0)),
+            radius,
+            mat,
+            bbox: aabb_from_point(center.clone() - rvec.clone(), center + rvec),
+        }
     }
-}
 
-// Moving Sphere
-pub fn sphere_moving(center1: Vec3, center2: Vec3, radius: f64, mat: Material) -> Sphere {
-    let rvec = vec3(radius, radius, radius);
-    let center = ray(center1.clone(), center2 - center1);
-    let box1 = &aabb_from_point(center.at(0.0) - rvec.clone(), center.at(0.0) + rvec.clone());
-    let box2 = &aabb_from_point(center.at(1.0) - rvec.clone(), center.at(1.0) + rvec);
-    Sphere {
-        center,
-        radius,
-        mat,
-        bbox: aabb_from_aabb(box1, box2)
+    // Moving Sphere
+    pub fn moving(center1: Vec3, center2: Vec3, radius: f64, mat: Material) -> Sphere {
+        let rvec = vec3(radius, radius, radius);
+        let center = ray(center1.clone(), center2 - center1);
+        let box1 = &aabb_from_point(center.at(0.0) - rvec.clone(), center.at(0.0) + rvec.clone());
+        let box2 = &aabb_from_point(center.at(1.0) - rvec.clone(), center.at(1.0) + rvec);
+        Sphere {
+            center,
+            radius,
+            mat,
+            bbox: aabb_from_aabb(box1, box2)
+        }
     }
 }
 

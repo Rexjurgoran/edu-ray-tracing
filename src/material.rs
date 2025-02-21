@@ -32,19 +32,19 @@ pub fn material(material: Mat, albedo: Color, fuzz: f64, refraction_index: f64) 
     }
 }
 
-pub fn material_lambertian(albedo: Color) -> Material {
-    material(Mat::Lambertian, albedo, Default::default(), Default::default())
-}
-
-pub fn material_dielectric(refraction_index: f64) -> Material {
-    material(Mat::Dielectric, Default::default(), Default::default(), refraction_index)
-}
-
-pub fn material_metal(albedo: Color, fuzz: f64) -> Material {
-    material(Mat::Metal, albedo, fuzz, Default::default())
-}
-
 impl Material {
+    pub fn lambertian(albedo: Color) -> Material {
+        material(Mat::Lambertian, albedo, Default::default(), Default::default())
+    }
+
+    pub fn dielectric(refraction_index: f64) -> Material {
+        material(Mat::Dielectric, Default::default(), Default::default(), refraction_index)
+    }
+    
+    pub fn metal(albedo: Color, fuzz: f64) -> Material {
+        material(Mat::Metal, albedo, fuzz, Default::default())
+    }
+
     pub fn scatter(
         &self,
         r_in: &Ray,
