@@ -1,9 +1,11 @@
+use std::rc::Rc;
 
 use crate::{
     color::{color, Color},
     ray::{ray_with_time, Ray},
     rtweekend::random_double,
     sphere::HitRecord,
+    texture::{SolidColor, Texture},
     vec3::{dot, random_unit_vector, reflect, refract, unit_vector},
 };
 
@@ -15,36 +17,71 @@ pub enum Mat {
     Dielectric,
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct Material {
     material: Mat,
     albedo: Color,
     fuzz: f64,
     refraction_index: f64,
-}
-
-pub fn material(material: Mat, albedo: Color, fuzz: f64, refraction_index: f64) -> Material {
-    Material {
-        material,
-        albedo,
-        fuzz,
-        refraction_index,
-    }
-}
-
-pub fn material_lambertian(albedo: Color) -> Material {
-    material(Mat::Lambertian, albedo, Default::default(), Default::default())
-}
-
-pub fn material_dielectric(refraction_index: f64) -> Material {
-    material(Mat::Dielectric, Default::default(), Default::default(), refraction_index)
-}
-
-pub fn material_metal(albedo: Color, fuzz: f64) -> Material {
-    material(Mat::Metal, albedo, fuzz, Default::default())
+    tex: Rc<dyn Texture>,
 }
 
 impl Material {
+    fn new(
+        material: Mat,
+        albedo: Color,
+        fuzz: f64,
+        refraction_index: f64,
+        tex: Rc<dyn Texture>,
+    ) -> Material {
+        Material {
+            material,
+            albedo,
+            fuzz,
+            refraction_index,
+            tex,
+        }
+    }
+    pub fn lambertian(albedo: Color) -> Material {
+        Self::new(
+            Mat::Lambertian,
+            Default::default(),
+            Default::default(),
+            Default::default(),
+            Rc::new(SolidColor::from_color(albedo)),
+        )
+    }
+
+    pub fn lambertian_from_tex(tex: Rc<dyn Texture>) -> Material {
+        Self::new(
+            Mat::Lambertian,
+            Default::default(),
+            Default::default(),
+            Default::default(),
+            tex,
+        )
+    }
+
+    pub fn dielectric(refraction_index: f64) -> Material {
+        Self::new(
+            Mat::Dielectric,
+            Default::default(),
+            Default::default(),
+            refraction_index,
+            Rc::new(SolidColor::from_color(Color::default())),
+        )
+    }
+
+    pub fn metal(albedo: Color, fuzz: f64) -> Material {
+        Self::new(
+            Mat::Metal,
+            albedo,
+            fuzz,
+            Default::default(),
+            Rc::new(SolidColor::from_color(Color::default())),
+        )
+    }
+
     pub fn scatter(
         &self,
         r_in: &Ray,
@@ -72,7 +109,7 @@ impl Material {
             scatter_direction = rec.normal.clone();
         }
         *scattered = ray_with_time(rec.p.clone(), scatter_direction, r_in.time());
-        *attenuation = self.albedo.clone();
+        *attenuation = self.tex.value(rec.u, rec.v, &rec.p);
         true
     }
 
@@ -124,5 +161,11 @@ impl Material {
         let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
         r0 = r0 * r0;
         r0 + (1.0 - r0) * f64::powf(1.0 - cosine, 5.0)
+    }
+}
+
+impl Default for Material {
+    fn default() -> Self {
+        Self::lambertian(Color::default())
     }
 }

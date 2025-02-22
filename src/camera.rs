@@ -2,7 +2,7 @@ use std::f64::INFINITY;
 
 use crate::{
     color::{color, write_color, Color},
-    interval,
+    interval::Interval,
     ray::{ray_with_time, Ray},
     rtweekend::{degrees_to_radians, random_double},
     sphere::{HitRecord, Hittable},
@@ -161,7 +161,7 @@ fn ray_color(r: &Ray, depth: i32, world: &dyn Hittable) -> Color {
 
     let mut rec = HitRecord::default();
 
-    if world.hit(&r, interval(0.001, INFINITY), &mut rec) {
+    if world.hit(&r, Interval::new(0.001, INFINITY), &mut rec) {
         let mut scattered = Ray::default();
         let mut attenuation = Color::default();
         if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {

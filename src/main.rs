@@ -1,16 +1,17 @@
 use std::rc::Rc;
 
-use bvh::bvh_node_from_list;
+use bvh::BvhNode;
 use camera::Camera;
 use color::color;
-use hittable_list::{hittable_list, HittableList};
-use interval::interval;
-use material::{material_dielectric, material_lambertian, material_metal};
+use hittable_list::HittableList;
+use material::Material;
 use rtweekend::{random_double, random_double_from};
-use sphere::{sphere, sphere_moving};
+use sphere::Sphere;
+use texture::CheckerTexture;
 use vec3::{random, random_from, vec3};
 
 mod aabb;
+mod bvh;
 mod camera;
 mod color;
 mod hittable_list;
@@ -19,34 +20,23 @@ mod material;
 mod ray;
 mod rtweekend;
 mod sphere;
+mod texture;
 mod vec3;
-mod bvh;
 
 fn main() {
     let mut world = HittableList::default();
 
-    // let r = f64::cos(PI / 4.0);
-
-    // let material_left = material_lambertian(color(0.0, 0.0, 1.0));
-    // let material_right = material_lambertian(color(1.0, 0.0, 0.0));
-
-    // world.add(sphere(vec3(-r, 0.0, -1.0), r, material_left));
-    // world.add(sphere(vec3(r, 0.0, -1.0), r, material_right));
-
-    // let material_ground = material_lambertian(color(0.8, 0.8, 0.0));
-    // let material_center = material_lambertian(color(0.1, 0.2, 0.5));
-    // let material_left = material_dielectric(rtweekend::REFRACTION_GLASS);
-    // let material_bubble = material_dielectric(rtweekend::REFRACTION_AIR/rtweekend::REFRACTION_GLASS);
-    // let material_right = material_metal(color(0.8, 0.6, 0.2), 1.0);
-
-    // world.add(sphere(vec3(0.0, -100.5, -1.0), 100.0, material_ground));
-    // world.add(sphere(vec3(0.0, 0.0, -1.2), 0.5, material_center));
-    // world.add(sphere(vec3(-1.0, 0.0, -1.0), 0.5, material_left));
-    // world.add(sphere(vec3(-1.0, 0.0, -1.0), 0.4, material_bubble));
-    // world.add(sphere(vec3(1.0, 0.0, -1.0), 0.5, material_right));
-
-    let ground_material = material_lambertian(color(0.5, 0.5, 0.5));
-    world.add(Rc::new(sphere(vec3(0.0, -1000.0, 0.0), -1000.0, ground_material)));
+    let checker = Rc::new(CheckerTexture::from_colors(
+        0.32,
+        color(0.2, 0.3, 0.1),
+        color(0.9, 0.9, 0.9),
+    ));
+    //let ground_material = Material::lambertian(color(0.5, 0.5, 0.5));
+    world.add(Rc::new(Sphere::new(
+        vec3(0.0, -1000.0, 0.0),
+        1000.0,
+        Material::lambertian_from_tex(checker),
+    )));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -62,36 +52,40 @@ fn main() {
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = random() * random();
-                    sphere_material = material_lambertian(albedo.to_color());
+                    sphere_material = Material::lambertian(albedo.to_color());
                     let center2 = center.clone() + vec3(0.0, random_double_from(0.0, 0.5), 0.0);
-                    world.add(Rc::new(sphere_moving(center, center2, 0.2, sphere_material)));
+                    world.add(Rc::new(Sphere::moving(
+                        center,
+                        center2,
+                        0.2,
+                        sphere_material,
+                    )));
                 } else if choose_mat < 0.95 {
                     // metal
                     let albedo = random_from(0.5, 1.0);
                     let fuzz = random_double_from(0.0, 0.5);
-                    sphere_material = material_metal(albedo.to_color(), fuzz);
-                    world.add(Rc::new(sphere(center, 0.2, sphere_material)));
+                    sphere_material = Material::metal(albedo.to_color(), fuzz);
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else {
                     // glass
-                    sphere_material = material_dielectric(rtweekend::REFRACTION_GLASS);
-                    world.add(Rc::new(sphere(center, 0.2, sphere_material)));
+                    sphere_material = Material::dielectric(rtweekend::REFRACTION_GLASS);
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 }
             }
         }
     }
 
-    let material1 = material_dielectric(rtweekend::REFRACTION_GLASS);
-    world.add(Rc::new(sphere(vec3(0.0, 1.0, 0.0), 1.0, material1)));
+    let material1 = Material::dielectric(rtweekend::REFRACTION_GLASS);
+    world.add(Rc::new(Sphere::new(vec3(0.0, 1.0, 0.0), 1.0, material1)));
 
-    let material2 = material_lambertian(color(0.4, 0.2, 0.1));
-    world.add(Rc::new(sphere(vec3(-4.0, 1.0, 0.0), 1.0, material2)));
+    let material2 = Material::lambertian(color(0.4, 0.2, 0.1));
+    world.add(Rc::new(Sphere::new(vec3(-4.0, 1.0, 0.0), 1.0, material2)));
 
-    let material3 = material_metal(color(0.7, 0.6, 0.5), 0.0);
-    world.add(Rc::new(sphere(vec3(4.0, 1.0, 0.0), 1.0, material3)));
+    let material3 = Material::metal(color(0.7, 0.6, 0.5), 0.0);
+    world.add(Rc::new(Sphere::new(vec3(4.0, 1.0, 0.0), 1.0, material3)));
 
-    let mut nodes = Vec::new();
-    let node = bvh_node_from_list(&mut world, &mut nodes);
-    world = hittable_list(Rc::new(node));
+    let node = BvhNode::from_list(&mut world);
+    world = HittableList::new(Rc::new(node));
 
     let mut cam: Camera = Default::default();
     cam.aspect_ratio = 16.0 / 9.0;

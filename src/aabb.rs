@@ -1,7 +1,7 @@
 use std::i32;
 
 use crate::{
-    interval::{interval, interval_from_interval, Interval},
+    interval::Interval,
     ray::Ray,
     vec3::Vec3,
 };
@@ -25,32 +25,31 @@ pub fn aabb_from_point(a: Vec3, b: Vec3) -> Aabb {
     // particular minimum/maximum coordinate order.
     Aabb {
         x: if a.x <= b.x {
-            interval(a.x, b.x)
+            Interval::new(a.x, b.x)
         } else {
-            interval(b.x, a.x)
+            Interval::new(b.x, a.x)
         },
         y: if a.y <= b.y {
-            interval(a.y, b.y)
+            Interval::new(a.y, b.y)
         } else {
-            interval(b.y, a.y)
+            Interval::new(b.y, a.y)
         },
         z: if a.z <= b.z {
-            interval(a.z, b.z)
+            Interval::new(a.z, b.z)
         } else {
-            interval(b.z, a.z)
+            Interval::new(b.z, a.z)
         },
-    }
-}
-
-pub fn aabb_from_aabb(box0: &Aabb, box1: &Aabb) -> Aabb {
-    Aabb {
-        x: interval_from_interval(&box0.x, &box1.x),
-        y: interval_from_interval(&box0.y, &box1.y),
-        z: interval_from_interval(&box0.z, &box1.z),
     }
 }
 
 impl Aabb {
+    pub fn from_aabb(box0: &Aabb, box1: &Aabb) -> Aabb {
+        Aabb {
+            x: Interval::from_interval(&box0.x, &box1.x),
+            y: Interval::from_interval(&box0.y, &box1.y),
+            z: Interval::from_interval(&box0.z, &box1.z),
+        }
+    }
 
     pub fn empty() -> Aabb {
         Aabb { x: Interval::empty(), y: Interval::empty(), z: Interval::empty() }
@@ -62,8 +61,8 @@ impl Aabb {
 
     pub fn longest_axis(&self) -> i32 {
         // Returns the index of the longest axis of the bounding box.
-        if self.x.size() > self.z.size() {
-            return if self.x.size() > self.y.size() { 0 } else { 2 };
+        if self.x.size() > self.y.size() {
+            return if self.x.size() > self.z.size() { 0 } else { 2 };
         } else {
             return if self.y.size() > self.z.size() { 1 } else { 2 };
         }

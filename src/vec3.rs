@@ -4,7 +4,7 @@ use crate::{
     color::{color, Color},
     rtweekend::{random_double, random_double_from},
 };
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Copy)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,

@@ -1,6 +1,6 @@
-use crate::interval::interval;
+use crate::interval::Interval;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Copy)]
 pub struct Color {
     pub r: f64,
     pub g: f64,
@@ -29,7 +29,7 @@ pub fn write_color(color: Color) {
     b = linear_to_gamma(b);
 
     // Translate the [0,1] component values to the byte range [0,255]
-    let intensity = interval(0.000, 0.999);
+    let intensity = Interval::new(0.000, 0.999);
     let ir = (255.999 * intensity.clamp(r)) as i32;
     let ig = (255.999 * intensity.clamp(g)) as i32;
     let ib = (255.999 * intensity.clamp(b)) as i32;
