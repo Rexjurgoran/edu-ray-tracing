@@ -1,7 +1,7 @@
 use std::{cmp::Ordering, rc::Rc};
 
 use crate::{
-    aabb::Aabb, hittable_list::HittableList, interval::Interval, ray::Ray, sphere::{HitRecord, Hittable},
+    aabb::Aabb, hittable_list::HittableList, interval::Interval, ray::Ray, rtweekend::random_int_from, sphere::{HitRecord, Hittable}
 };
 
 pub struct BvhNode {
@@ -13,16 +13,20 @@ pub struct BvhNode {
 impl BvhNode {
     pub fn new(objects: &mut Vec<Rc<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
         // Build the bounding box of the span of source objects.
-        let mut bbox = Aabb::empty();
+        // let mut bbox = Aabb::empty();
 
-        for object_index in start..end {
-            bbox = Aabb::from_aabb(&bbox, objects[object_index].bounding_box());
-        }
+        // Optimization that just don't seem to work
+        // for object_index in start..end {
+        //     bbox = Aabb::from_aabb(&bbox, objects[object_index].bounding_box());
+        // }
 
         let object_span = end - start;
         let left;
         let right;
-        let axis = bbox.longest_axis();
+        
+        // Part of optimization code
+        // let axis = bbox.longest_axis();
+        let axis = random_int_from(0, 2);
 
         let comparator = if axis == 0 {
             Self::box_x_compare
@@ -45,7 +49,7 @@ impl BvhNode {
             left = Rc::new(BvhNode::new(objects, start, mid));
             right = Rc::new(BvhNode::new(objects, mid, end));
         }
-        // let bbox = Aabb::from_aabb(left.bounding_box(), right.bounding_box());
+        let bbox = Aabb::from_aabb(left.bounding_box(), right.bounding_box());
         BvhNode { left, right, bbox }
     }
 
