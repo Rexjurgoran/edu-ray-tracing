@@ -2,13 +2,13 @@ use std::{i32, rc::Rc};
 
 use bvh::BvhNode;
 use camera::Camera;
-use color::{color, Color};
+use color::color;
 use hittable_list::HittableList;
 use material::Material;
 use rtweekend::{random_double, random_double_from};
 use sphere::Sphere;
-use texture::{CheckerTexture, Texture};
-use vec3::{random, random_from, vec3, Vec3};
+use texture::CheckerTexture;
+use vec3::{random, random_from, vec3};
 
 mod aabb;
 mod bvh;
