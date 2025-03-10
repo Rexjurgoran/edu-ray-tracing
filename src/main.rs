@@ -7,8 +7,8 @@ use hittable_list::HittableList;
 use material::Material;
 use rtweekend::{random_double, random_double_from};
 use sphere::Sphere;
-use texture::CheckerTexture;
-use vec3::{random, random_from, vec3};
+use texture::{CheckerTexture, ImageTexture};
+use vec3::{random, random_from, vec3, Vec3};
 
 mod aabb;
 mod bvh;
@@ -139,10 +139,32 @@ fn checkered_spheres() {
     cam.render(&world);
 }
 
+fn earth() {
+    let earth_texture = Rc::new(ImageTexture::new("misc\\earthmap.jpg"));
+    let earth_surface = Material::lambertian_from_tex(earth_texture);
+    let globe = Rc::new(Sphere::new(vec3(0.0, 0.0, 0.0), 2.0, earth_surface));
+
+    let mut cam: Camera = Default::default();
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20.0;
+    cam.lookfrom = vec3(0.0, 0.0, 12.0);
+    cam.lookat = vec3(0.0, 0.0, 0.0);
+    cam.vup = vec3(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&HittableList::new(globe));
+}
+
 fn main() {
-    match 2 {
+    match 3 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
+        3 => earth(),
         i32::MIN..=i32::MAX => !panic!(),
     }
 }
