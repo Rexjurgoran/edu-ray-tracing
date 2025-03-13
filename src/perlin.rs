@@ -1,15 +1,13 @@
-use rand::seq::index;
-
 use crate::{
-    rtweekend::{random_double, random_int_from},
-    vec3::{self, dot, random_from, unit_vector, vec3, Vec3},
+    rtweekend::random_int_from,
+    vec3::{dot, random_from, unit_vector, vec3, Vec3},
 };
 
 pub struct Perlin {
     randvec: Vec<Vec3>,
-    perm_x: Vec<usize>,
-    perm_y: Vec<usize>,
-    perm_z: Vec<usize>,
+    perm_x: Vec<i32>,
+    perm_y: Vec<i32>,
+    perm_z: Vec<i32>,
 }
 
 impl Perlin {
@@ -33,18 +31,20 @@ impl Perlin {
         let v = p.y - f64::floor(p.y);
         let w = p.z - f64::floor(p.z);
 
-        let i = f64::floor(p.x) as usize;
-        let j = f64::floor(p.y) as usize;
-        let k = f64::floor(p.z) as usize;
+        let i = f64::floor(p.x) as i32;
+        let j = f64::floor(p.y) as i32;
+        let k = f64::floor(p.z) as i32;
 
         let mut c = [[[vec3(0.0, 0.0, 0.0); 2]; 2]; 2];
 
         for di in 0..2 {
             for dj in 0..2 {
                 for dk in 0..2 {
-                    c[di][dj][dk] = self.randvec[self.perm_x[(i + di) & 255]
-                        ^ self.perm_y[(j + dj) & 255]
-                        ^ self.perm_z[(k + dk) & 255]]
+                    c[di as usize][dj as usize][dk as usize] = self.randvec[(self.perm_x
+                        [((i + di) & 255) as usize]
+                        ^ self.perm_y[((j + dj) & 255) as usize]
+                        ^ self.perm_z[((k + dk) & 255) as usize])
+                        as usize]
                 }
             }
         }
@@ -60,13 +60,13 @@ impl Perlin {
         for _ in 0..depth {
             accum += weight * self.noise(&temp_p);
             weight *= 0.5;
-            temp_p = temp_p * 2.0; 
+            temp_p = temp_p * 2.0;
         }
 
         f64::abs(accum)
     }
 
-    fn generate_perm() -> Vec<usize> {
+    fn generate_perm() -> Vec<i32> {
         let mut p = Vec::with_capacity(256);
         for i in 0..256 {
             p.push(i);
@@ -75,7 +75,7 @@ impl Perlin {
         p
     }
 
-    fn permute(p: &mut Vec<usize>, n: i32) {
+    fn permute(p: &mut Vec<i32>, n: i32) {
         for i in 0..n - 1 {
             let target = random_int_from(0, i);
             let tmp = p[i as usize];
@@ -93,10 +93,10 @@ impl Perlin {
             for j in 0..2 {
                 for k in 0..2 {
                     let weight = vec3(u - i as f64, v - j as f64, w - k as f64);
-                    accum += (i as f64 * uu + (1 - i) as f64 * (1.0 - uu)) *
-                        (j as f64 * vv + (1 - j) as f64 * (1.0 - vv)) *
-                        (k as f64 * ww + (1 - k) as f64 * (1.0 - ww)) *
-                        dot(&c[i][j][k], &weight);
+                    accum += (i as f64 * uu + (1 - i) as f64 * (1.0 - uu))
+                        * (j as f64 * vv + (1 - j) as f64 * (1.0 - vv))
+                        * (k as f64 * ww + (1 - k) as f64 * (1.0 - ww))
+                        * dot(&c[i][j][k], &weight);
                 }
             }
         }
