@@ -1,10 +1,6 @@
 use std::i32;
 
-use crate::{
-    interval::Interval,
-    ray::Ray,
-    vec3::Vec3,
-};
+use crate::{interval::Interval, ray::Ray, vec3::Vec3};
 
 // Struct for an axis-aligned bounding box, definde by intervals in all 3 spacial dimensions
 #[derive(Default)]
@@ -14,35 +10,28 @@ pub struct Aabb {
     pub z: Interval,
 }
 
-// Constructor using intervals
-pub fn aabb_from_interval(x: Interval, y: Interval, z: Interval) -> Aabb {
-    Aabb { x, y, z }
-}
-
-// Constructor using two points
-pub fn aabb_from_point(a: Vec3, b: Vec3) -> Aabb {
-    // Treat the two points a and b as extrema for the bounding box, so we don't require a
-    // particular minimum/maximum coordinate order.
-    Aabb {
-        x: if a.x <= b.x {
-            Interval::new(a.x, b.x)
-        } else {
-            Interval::new(b.x, a.x)
-        },
-        y: if a.y <= b.y {
-            Interval::new(a.y, b.y)
-        } else {
-            Interval::new(b.y, a.y)
-        },
-        z: if a.z <= b.z {
-            Interval::new(a.z, b.z)
-        } else {
-            Interval::new(b.z, a.z)
-        },
-    }
-}
-
 impl Aabb {
+    pub fn from_interval(x: Interval, y: Interval, z: Interval) -> Aabb {
+        let mut aabb = Aabb { x, y, z };
+        aabb.pad_to_minimums();
+        aabb
+    }
+
+    pub fn from_point(a: &Vec3, b: &Vec3) -> Aabb {
+        // Treat the two points a and b as extrema for the bounding box, so whe don't require a 
+        // particular minimum/maximum coordinate oder.
+
+        let x = Interval::new(f64::min(a.x, b.x), f64::max(a.x, b.x));
+        let y = Interval::new(f64::min(a.y, b.y), f64::max(a.y, b.y));
+        let z = Interval::new(f64::min(a.z, b.z), f64::max(a.z, b.z));
+
+        let mut aabb = Aabb { x, y, z};
+
+        aabb.pad_to_minimums();
+
+        aabb
+    }
+
     pub fn from_aabb(box0: &Aabb, box1: &Aabb) -> Aabb {
         Aabb {
             x: Interval::from_interval(&box0.x, &box1.x),
@@ -52,11 +41,19 @@ impl Aabb {
     }
 
     pub fn empty() -> Aabb {
-        Aabb { x: Interval::empty(), y: Interval::empty(), z: Interval::empty() }
+        Aabb {
+            x: Interval::empty(),
+            y: Interval::empty(),
+            z: Interval::empty(),
+        }
     }
 
     pub fn universe() -> Aabb {
-        Aabb { x: Interval::universe(), y: Interval::universe(), z: Interval::universe() }
+        Aabb {
+            x: Interval::universe(),
+            y: Interval::universe(),
+            z: Interval::universe(),
+        }
     }
 
     pub fn longest_axis(&self) -> i32 {
@@ -118,5 +115,19 @@ impl Aabb {
             }
         }
         true
+    }
+
+    fn pad_to_minimums(&mut self) {
+        // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
+        let delta = 0.0001;
+        if self.x.size() < delta {
+            self.x = self.x.expand(delta);
+        }
+        if self.y.size() < delta {
+            self.y = self.y.expand(delta);
+        }
+        if self.z.size() < delta {
+            self.z = self.z.expand(delta);
+        }
     }
 }

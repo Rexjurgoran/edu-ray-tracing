@@ -23,6 +23,7 @@ mod rtweekend;
 mod sphere;
 mod texture;
 mod vec3;
+mod quad;
 
 fn bouncing_spheres() {
     let mut world = HittableList::default();
