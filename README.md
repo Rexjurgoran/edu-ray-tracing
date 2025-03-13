@@ -14,3 +14,8 @@ This yielded this final render as result.
 ## Ray Tracing: The Next Week
 
 Currently I am working on adapting the [next book](https://raytracing.github.io/books/RayTracingTheNextWeek.html) in the series.
+The current state of my efforts is this:
+
+<p align="center">
+	<img src="misc/CurrentState.png" width="1200" alt="Current State">
+</p>
