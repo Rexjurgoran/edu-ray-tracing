@@ -7,7 +7,7 @@ use hittable_list::HittableList;
 use material::Material;
 use rtweekend::{random_double, random_double_from};
 use sphere::Sphere;
-use texture::{CheckerTexture, ImageTexture};
+use texture::{CheckerTexture, ImageTexture, NoiseTexture};
 use vec3::{random, random_from, vec3, Vec3};
 
 mod aabb;
@@ -17,6 +17,7 @@ mod color;
 mod hittable_list;
 mod interval;
 mod material;
+mod perlin;
 mod ray;
 mod rtweekend;
 mod sphere;
@@ -160,11 +161,43 @@ fn earth() {
     cam.render(&HittableList::new(globe));
 }
 
+fn perlin_spheres() {
+    let mut world = HittableList::default();
+
+    let pertext = Rc::new(NoiseTexture::new());
+    world.add(Rc::new(Sphere::new(
+        vec3(0.0, -1000.0, 0.0),
+        1000.0,
+        Material::lambertian_from_tex(pertext.clone()),
+    )));
+    world.add(Rc::new(Sphere::new(
+        vec3(0.0, 2.0, 0.0),
+        2.0,
+        Material::lambertian_from_tex(pertext),
+    )));
+
+    let mut cam: Camera = Default::default();
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20.0;
+    cam.lookfrom = vec3(13.0,2.0,3.0);
+    cam.lookat   = vec3(0.0,0.0,0.0);
+    cam.vup      = vec3(0.0,1.0,0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+}
+
 fn main() {
-    match 3 {
+    match 4 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
+        4 => perlin_spheres(),
         i32::MIN..=i32::MAX => !panic!(),
     }
 }

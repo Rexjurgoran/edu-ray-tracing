@@ -3,9 +3,7 @@ use std::rc::Rc;
 use image::{DynamicImage, GenericImageView, ImageReader};
 
 use crate::{
-    color::{color, Color},
-    interval::Interval,
-    vec3::Vec3,
+    color::{color, Color}, interval::Interval, perlin::Perlin, vec3::Vec3
 };
 
 pub trait Texture {
@@ -112,5 +110,21 @@ impl Texture for ImageTexture {
             color_scale * pixel[1] as f64,
             color_scale * pixel[2] as f64,
         )
+    }
+}
+
+pub struct NoiseTexture {
+    noise: Perlin,
+}
+
+impl NoiseTexture {
+    pub fn new() -> Self {
+        NoiseTexture { noise: Perlin::new() }
+    }
+}
+
+impl Texture for NoiseTexture {
+    fn value(&self, u: f64, v: f64, p: &Vec3) -> Color {
+        color(1.0, 1.0, 1.0) * self.noise.noise(p)
     }
 }
