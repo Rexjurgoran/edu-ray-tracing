@@ -29,14 +29,9 @@ impl Perlin {
     }
 
     pub fn noise(&self, p: &Vec3) -> f64 {
-        let mut u = p.x - f64::floor(p.x);
-        let mut v = p.y - f64::floor(p.y);
-        let mut w = p.z - f64::floor(p.z);
-
-        // Hermitian smoothing
-        u = u * u * (3.0 - 2.0 * u);
-        v = v * v * (3.0 - 2.0 * v);
-        w = w * w * (3.0 - 2.0 * w);
+        let u = p.x - f64::floor(p.x);
+        let v = p.y - f64::floor(p.y);
+        let w = p.z - f64::floor(p.z);
 
         let i = f64::floor(p.x) as usize;
         let j = f64::floor(p.y) as usize;
