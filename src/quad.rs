@@ -1,22 +1,28 @@
 use std::rc::Rc;
 
-use crate::{aabb::Aabb, material::Material, sphere::Hittable, vec3::Vec3};
+use crate::{aabb::Aabb, material::Material, sphere::Hittable, vec3::{cross, dot, unit_vector, Vec3}};
 
 pub struct Quad {
     q: Vec3,
     u: Vec3,
     v: Vec3,
-    mat: Rc<Material>,
+    mat: Material,
     bbox: Aabb,
+    normal: Vec3,
+    d: f64
 }
 impl Quad {
-    pub fn new(q: Vec3, u: Vec3, v: Vec3, mat: Rc<Material>) -> Self {
+    pub fn new(q: Vec3, u: Vec3, v: Vec3, mat: Material) -> Self {
+        let n = cross(&u, &v);
+        let normal = unit_vector(&n);
         let mut quad = Quad {
             q,
             u,
             v,
             mat,
             bbox: Default::default(),
+            normal,
+            d: dot(&normal, &q)
         };
         quad.set_bounding_box();
         quad
@@ -36,7 +42,23 @@ impl Hittable for Quad {
         ray_t: crate::interval::Interval,
         rec: &mut crate::sphere::HitRecord,
     ) -> bool {
-        todo!()
+        let denom = dot(&self.normal, r.direction());
+
+        // No hit if the ray is parallel to the plane.
+        if f64::abs(denom) < 1e-8 { return false; }
+
+        // Return false if the hit point parameter t is outside the ray interval.
+        let t = (self.d - dot(&self.normal, r.origin())) / denom;
+        if !ray_t.contains(t) { return false; }
+
+        let intersection = r.at(t);
+
+        rec.t = t;
+        rec.p = intersection;
+        rec.mat = self.mat.clone();
+        rec.set_face_normal(r, &self.normal);
+
+        true
     }
 
     fn bounding_box(&self) -> &crate::aabb::Aabb {
