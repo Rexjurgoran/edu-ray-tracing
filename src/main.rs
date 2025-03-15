@@ -5,6 +5,7 @@ use camera::Camera;
 use color::color;
 use hittable_list::HittableList;
 use material::Material;
+use quad::Quad;
 use rtweekend::{random_double, random_double_from};
 use sphere::Sphere;
 use texture::{CheckerTexture, ImageTexture, NoiseTexture};
@@ -193,12 +194,46 @@ fn perlin_spheres() {
     cam.render(&world);
 }
 
+fn quads() {
+    let mut world = HittableList::default();
+
+    // Materials
+    let left_red = Material::lambertian(color(1.0, 0.2, 0.2));
+    let back_green = Material::lambertian(color(0.2, 1.0, 0.2));
+    let right_blue = Material::lambertian(color(0.2, 0.2, 1.0));
+    let upper_orange = Material::lambertian(color(1.0, 0.5, 0.0));
+    let lower_teal = Material::lambertian(color(0.2, 0.8, 0.8));
+
+    // Quads
+    world.add(Rc::new(Quad::new(vec3(-3.0, -2.0, 5.0), vec3(0.0, 0.0, -4.0), vec3(0.0, 4.0, 0.0), left_red)));
+    world.add(Rc::new(Quad::new(vec3(-2.0, -2.0, 0.0), vec3(4.0, 0.0, 0.0), vec3(0.0, 4.0, 0.0), back_green)));
+    world.add(Rc::new(Quad::new(vec3(3.0, -2.0, 1.0), vec3(0.0, 0.0, 4.0), vec3(0.0, 4.0, 0.0), right_blue)));
+    world.add(Rc::new(Quad::new(vec3(-2.0, 3.0, 1.0), vec3(4.0, 0.0, 0.0), vec3(0.0, 0.0, 4.0), upper_orange)));
+    world.add(Rc::new(Quad::new(vec3(-2.0, -3.0, 5.0), vec3(4.0, 0.0, 0.0), vec3(0.0, 0.0, -4.0), lower_teal)));
+
+    let mut cam: Camera = Default::default();
+
+    cam.aspect_ratio = 1.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 80.0;
+    cam.lookfrom = vec3(0.0,0.0,9.0);
+    cam.lookat = vec3(0.0, 0.0, 0.0);
+    cam.vup = vec3(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+}
 fn main() {
-    match 4 {
+    match 5 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
         4 => perlin_spheres(),
+        5 => quads(),
         i32::MIN..=i32::MAX => !panic!(),
     }
 }
