@@ -1,3 +1,4 @@
+use core::f64;
 use std::f64::INFINITY;
 
 use crate::{
@@ -14,6 +15,7 @@ pub struct Camera {
     pub image_width: i32,       // Rendered image width in pixel count
     pub samples_per_pixel: i32, // Count of random samples for each pixel
     pub max_depth: i32,         // Maximum number of ray bounces into scene
+    pub background: Color,      // Scene background color
 
     pub vfov: f64,      // Vertical view angle (field of view)
     pub lookfrom: Vec3, // Point camera is looking from
@@ -59,7 +61,8 @@ impl Default for Camera {
             v: Default::default(),
             w: Default::default(),
             defocus_disk_u: Default::default(),
-            defocus_disk_v: Default::default()
+            defocus_disk_v: Default::default(),
+            background: Color::default(),
         }
     }
 }
@@ -74,7 +77,7 @@ impl Camera {
                 let mut pixel_color = color(0.0, 0.0, 0.0);
                 for _sample in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
-                    pixel_color += ray_color(&r, self.max_depth, world)
+                    pixel_color += self.ray_color(&r, self.max_depth, world)
                 }
                 write_color(self.pixel_sample_scale * pixel_color);
             }
@@ -118,7 +121,8 @@ impl Camera {
         self.pixel00_loc = viewport_upper_left + 0.5 * (&self.pixel_delta_u + &self.pixel_delta_v);
 
         // Calculate the camera defocus disk basis vectors
-        let defocus_radius = self.focus_dist * f64::tan(degrees_to_radians(self.defocus_angle / 2.0));
+        let defocus_radius =
+            self.focus_dist * f64::tan(degrees_to_radians(self.defocus_angle / 2.0));
         self.defocus_disk_u = &self.u * defocus_radius;
         self.defocus_disk_v = &self.v * defocus_radius;
     }
@@ -132,7 +136,11 @@ impl Camera {
             + ((i as f64 + offset.x) * &self.pixel_delta_u)
             + ((j as f64 + offset.y) * &self.pixel_delta_v);
 
-        let ray_origin = if self.defocus_angle <= 0.0 { self.center.clone() } else { self.defocus_disk_sample() };
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            self.center.clone()
+        } else {
+            self.defocus_disk_sample()
+        };
         let ray_direction = &pixel_sample - &ray_origin;
         let ray_time = random_double();
 
@@ -144,43 +152,35 @@ impl Camera {
         let p = random_in_unit_disk();
         &self.center + (p.x * &self.defocus_disk_u) + (p.y * &self.defocus_disk_v)
     }
+
+    pub fn ray_color(&self, r: &Ray, depth: i32, world: &dyn Hittable) -> Color {
+        // If we've exceeded the ray bounce limit, no more light is gathered
+        if depth <= 0 {
+            return color(0.0, 0.0, 0.0);
+        }
+
+        let mut rec = HitRecord::default();
+
+        // If the ray hits nothing, return the background color.
+        if !world.hit(r, Interval::new(0.001, f64::INFINITY), &mut rec) {
+            return self.background;
+        }
+
+        let mut scattered = Ray::default();
+        let mut attenuation = Color::default();
+        let color_from_emmission = rec.mat.emmited(rec.u, rec.v, &rec.p);
+
+        if !rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
+            return color_from_emmission;
+        }
+
+        let color_from_scatter = attenuation * self.ray_color(&scattered, depth - 1, world);
+
+        color_from_emmission + color_from_scatter
+    }
 }
 
 fn sample_square() -> Vec3 {
     // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
     vec3(random_double() - 0.5, random_double() - 0.5, 0.0)
-}
-
-
-
-fn ray_color(r: &Ray, depth: i32, world: &dyn Hittable) -> Color {
-    // If we've exceeded the ray bounce limit, no more light is gathered
-    if depth <= 0 {
-        return color(0.0, 0.0, 0.0);
-    }
-
-    let mut rec = HitRecord::default();
-
-    if world.hit(&r, Interval::new(0.001, INFINITY), &mut rec) {
-        let mut scattered = Ray::default();
-        let mut attenuation = Color::default();
-        if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
-            return attenuation * ray_color(&scattered, depth - 1, world);
-        }
-        return color(0.0, 0.0, 0.0);
-    }
-
-    let unit_direction = unit_vector(r.direction());
-    let a = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - a)
-        * Color {
-            r: 1.0,
-            g: 1.0,
-            b: 1.0,
-        }
-        + a * Color {
-            r: 0.5,
-            g: 0.7,
-            b: 1.0,
-        }
 }

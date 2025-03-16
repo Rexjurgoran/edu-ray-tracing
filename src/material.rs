@@ -6,7 +6,7 @@ use crate::{
     rtweekend::random_double,
     sphere::HitRecord,
     texture::{SolidColor, Texture},
-    vec3::{dot, random_unit_vector, reflect, refract, unit_vector},
+    vec3::{dot, random_unit_vector, reflect, refract, unit_vector, Vec3},
 };
 
 #[derive(Clone, Default)]
@@ -15,6 +15,7 @@ pub enum Mat {
     Lambertian,
     Metal,
     Dielectric,
+    DiffuseLight,
 }
 
 #[derive(Clone)]
@@ -93,6 +94,7 @@ impl Material {
             Mat::Lambertian => self.scatter_lambertian(r_in, rec, attenuation, scattered),
             Mat::Metal => self.scatter_metal(r_in, rec, attenuation, scattered),
             Mat::Dielectric => self.scatter_dielectic(r_in, rec, attenuation, scattered),
+            Mat::DiffuseLight => self.scatter_lambertian(r_in, rec, attenuation, scattered)
         }
     }
 
@@ -161,6 +163,15 @@ impl Material {
         let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
         r0 = r0 * r0;
         r0 + (1.0 - r0) * f64::powf(1.0 - cosine, 5.0)
+    }
+
+    pub fn emmited(&self, u: f64, v: f64, p: &Vec3) -> Color {
+        match self.material {
+            Mat::Lambertian => color(0.0, 0.0, 0.0), 
+            Mat::Metal => color(0.0, 0.0, 0.0),
+            Mat::Dielectric => color(0.0, 0.0, 0.0),
+            Mat::DiffuseLight => self.tex.value(u, v, p),
+        }
     }
 }
 

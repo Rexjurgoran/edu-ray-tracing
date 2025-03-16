@@ -9,7 +9,7 @@ use quad::Quad;
 use rtweekend::{random_double, random_double_from};
 use sphere::Sphere;
 use texture::{CheckerTexture, ImageTexture, NoiseTexture};
-use vec3::{random, random_from, vec3, Vec3};
+use vec3::{random, random_from, vec3};
 
 mod aabb;
 mod bvh;
@@ -95,6 +95,7 @@ fn bouncing_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = color(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(13.0, 2.0, 3.0);
@@ -131,6 +132,7 @@ fn checkered_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = color(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(13.0, 2.0, 3.0);
@@ -152,6 +154,7 @@ fn earth() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = color(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(0.0, 0.0, 12.0);
@@ -179,15 +182,16 @@ fn perlin_spheres() {
     )));
 
     let mut cam: Camera = Default::default();
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400;
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
     cam.samples_per_pixel = 100;
-    cam.max_depth         = 50;
+    cam.max_depth = 50;
+    cam.background = color(0.70, 0.80, 1.00);
 
-    cam.vfov     = 20.0;
-    cam.lookfrom = vec3(13.0,2.0,3.0);
-    cam.lookat   = vec3(0.0,0.0,0.0);
-    cam.vup      = vec3(0.0,1.0,0.0);
+    cam.vfov = 20.0;
+    cam.lookfrom = vec3(13.0, 2.0, 3.0);
+    cam.lookat = vec3(0.0, 0.0, 0.0);
+    cam.vup = vec3(0.0, 1.0, 0.0);
 
     cam.defocus_angle = 0.0;
 
@@ -205,11 +209,36 @@ fn quads() {
     let lower_teal = Material::lambertian(color(0.2, 0.8, 0.8));
 
     // Quads
-    world.add(Rc::new(Quad::new(vec3(-3.0, -2.0, 5.0), vec3(0.0, 0.0, -4.0), vec3(0.0, 4.0, 0.0), left_red)));
-    world.add(Rc::new(Quad::new(vec3(-2.0, -2.0, 0.0), vec3(4.0, 0.0, 0.0), vec3(0.0, 4.0, 0.0), back_green)));
-    world.add(Rc::new(Quad::new(vec3(3.0, -2.0, 1.0), vec3(0.0, 0.0, 4.0), vec3(0.0, 4.0, 0.0), right_blue)));
-    world.add(Rc::new(Quad::new(vec3(-2.0, 3.0, 1.0), vec3(4.0, 0.0, 0.0), vec3(0.0, 0.0, 4.0), upper_orange)));
-    world.add(Rc::new(Quad::new(vec3(-2.0, -3.0, 5.0), vec3(4.0, 0.0, 0.0), vec3(0.0, 0.0, -4.0), lower_teal)));
+    world.add(Rc::new(Quad::new(
+        vec3(-3.0, -2.0, 5.0),
+        vec3(0.0, 0.0, -4.0),
+        vec3(0.0, 4.0, 0.0),
+        left_red,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(-2.0, -2.0, 0.0),
+        vec3(4.0, 0.0, 0.0),
+        vec3(0.0, 4.0, 0.0),
+        back_green,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(3.0, -2.0, 1.0),
+        vec3(0.0, 0.0, 4.0),
+        vec3(0.0, 4.0, 0.0),
+        right_blue,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(-2.0, 3.0, 1.0),
+        vec3(4.0, 0.0, 0.0),
+        vec3(0.0, 0.0, 4.0),
+        upper_orange,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(-2.0, -3.0, 5.0),
+        vec3(4.0, 0.0, 0.0),
+        vec3(0.0, 0.0, -4.0),
+        lower_teal,
+    )));
 
     let mut cam: Camera = Default::default();
 
@@ -217,9 +246,10 @@ fn quads() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = color(0.70, 0.80, 1.00);
 
     cam.vfov = 80.0;
-    cam.lookfrom = vec3(0.0,0.0,9.0);
+    cam.lookfrom = vec3(0.0, 0.0, 9.0);
     cam.lookat = vec3(0.0, 0.0, 0.0);
     cam.vup = vec3(0.0, 1.0, 0.0);
 
