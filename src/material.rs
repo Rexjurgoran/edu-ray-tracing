@@ -63,6 +63,16 @@ impl Material {
         )
     }
 
+    pub fn diffuse_light(emit: Color) -> Material {
+        Self::new(
+            Mat::DiffuseLight,
+            Default::default(),
+            Default::default(),
+            Default::default(),
+            Rc::new(SolidColor::from_color(emit)),
+        )
+    }
+
     pub fn dielectric(refraction_index: f64) -> Material {
         Self::new(
             Mat::Dielectric,
