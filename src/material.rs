@@ -104,7 +104,7 @@ impl Material {
             Mat::Lambertian => self.scatter_lambertian(r_in, rec, attenuation, scattered),
             Mat::Metal => self.scatter_metal(r_in, rec, attenuation, scattered),
             Mat::Dielectric => self.scatter_dielectic(r_in, rec, attenuation, scattered),
-            Mat::DiffuseLight => self.scatter_lambertian(r_in, rec, attenuation, scattered)
+            Mat::DiffuseLight => false
         }
     }
 
