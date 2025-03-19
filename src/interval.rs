@@ -59,3 +59,11 @@ impl Interval {
         self.min <= x && x <= self.max
     }
 }
+
+impl std::ops::Add<f64> for Interval {
+    type Output = Interval;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval::new(self.min + rhs, self.max + rhs)
+    }
+}

@@ -3,7 +3,7 @@ use std::i32;
 use crate::{interval::Interval, ray::Ray, vec3::Vec3};
 
 // Struct for an axis-aligned bounding box, definde by intervals in all 3 spacial dimensions
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub struct Aabb {
     pub x: Interval,
     pub y: Interval,
@@ -18,14 +18,14 @@ impl Aabb {
     }
 
     pub fn from_point(a: &Vec3, b: &Vec3) -> Aabb {
-        // Treat the two points a and b as extrema for the bounding box, so whe don't require a 
+        // Treat the two points a and b as extrema for the bounding box, so whe don't require a
         // particular minimum/maximum coordinate oder.
 
         let x = Interval::new(f64::min(a.x, b.x), f64::max(a.x, b.x));
         let y = Interval::new(f64::min(a.y, b.y), f64::max(a.y, b.y));
         let z = Interval::new(f64::min(a.z, b.z), f64::max(a.z, b.z));
 
-        let mut aabb = Aabb { x, y, z};
+        let mut aabb = Aabb { x, y, z };
 
         aabb.pad_to_minimums();
 
@@ -129,5 +129,21 @@ impl Aabb {
         if self.z.size() < delta {
             self.z = self.z.expand(delta);
         }
+    }
+}
+
+impl std::ops::Add<Vec3> for Aabb {
+    type Output = Self;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Aabb::from_interval(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+    }
+}
+
+impl std::ops::Add<Vec3> for &Aabb {
+    type Output = Aabb;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Aabb::from_interval(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }

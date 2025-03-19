@@ -2,10 +2,11 @@ use std::rc::Rc;
 
 use crate::{
     aabb::Aabb,
+    hittable_list::HittableList,
     interval::Interval,
     material::Material,
     sphere::{HitRecord, Hittable},
-    vec3::{cross, dot, unit_vector, Vec3},
+    vec3::{cross, dot, unit_vector, vec3, Vec3},
 };
 
 pub struct Quad {
@@ -100,4 +101,51 @@ impl Hittable for Quad {
     fn bounding_box(&self) -> &crate::aabb::Aabb {
         &self.bbox
     }
+}
+
+pub fn bx(a: &Vec3, b: &Vec3, mat: Material) -> Rc<HittableList> {
+    // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
+    let mut sides = HittableList::default();
+
+    // Construct the two oppposite vertices with the minimum and maximum coordinates.
+    let min = vec3(f64::min(a.x, b.x), f64::min(a.y, b.y), f64::min(a.z, b.z));
+    let max = vec3(f64::max(a.x, b.x), f64::max(a.y, b.y), f64::max(a.z, b.z));
+
+    let dx = vec3(max.x - min.x, 0.0, 0.0);
+    let dy = vec3(0.0, max.y - min.y, 0.0);
+    let dz = vec3(0.0, 0.0, max.z - min.z);
+
+    sides.add(Rc::new(Quad::new(
+        vec3(min.x, min.y, max.z),
+        dx,
+        dy,
+        mat.clone(),
+    ))); // front
+    sides.add(Rc::new(Quad::new(
+        vec3(max.x, min.y, max.z),
+        -dz,
+        dy,
+        mat.clone(),
+    ))); // right
+    sides.add(Rc::new(Quad::new(
+        vec3(max.x, min.y, min.z),
+        -dx,
+        dy,
+        mat.clone(),
+    ))); // back
+    sides.add(Rc::new(Quad::new(
+        vec3(min.x, min.y, min.z),
+        dz,
+        dy,
+        mat.clone(),
+    ))); // left
+    sides.add(Rc::new(Quad::new(
+        vec3(min.x, max.y, max.z),
+        dx,
+        -dz,
+        mat.clone(),
+    ))); // top
+    sides.add(Rc::new(Quad::new(vec3(min.x, min.y, min.z), dx, dz, mat))); // bottom
+
+    Rc::new(sides)
 }

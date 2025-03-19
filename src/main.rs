@@ -3,11 +3,11 @@ use std::{i32, rc::Rc};
 use bvh::BvhNode;
 use camera::Camera;
 use color::color;
-use hittable_list::HittableList;
+use hittable_list::{HittableList, RotateY, Translate};
 use material::Material;
-use quad::Quad;
+use quad::{bx, Quad};
 use rtweekend::{random_double, random_double_from};
-use sphere::Sphere;
+use sphere::{Hittable, Sphere};
 use texture::{CheckerTexture, ImageTexture, NoiseTexture, Texture};
 use vec3::{random, random_from, vec3};
 
@@ -274,6 +274,11 @@ fn simple_light() {
     )));
 
     let difflight = Material::diffuse_light(color(4.0, 4.0, 4.0));
+    world.add(Rc::new(Sphere::new(
+        vec3(0.0, 7.0, 0.0),
+        2.0,
+        difflight.clone(),
+    )));
     world.add(Rc::new(Quad::new(
         vec3(3.0, 1.0, -2.0),
         vec3(2.0, 0.0, 0.0),
@@ -305,14 +310,58 @@ fn cornell_box() {
     let red = Material::lambertian(color(0.65, 0.05, 0.05));
     let white = Material::lambertian(color(0.73, 0.73, 0.73));
     let green = Material::lambertian(color(0.12, 0.45, 0.15));
-    let light = Material::diffuse_light(color(1.0, 1.0, 1.0));
+    let light = Material::diffuse_light(color(15.0, 15.0, 15.0));
 
-    world.add(Rc::new(Quad::new(vec3(555.0, 0.0, 0.0), vec3(0.0, 555.0, 0.0), vec3(0.0, 0.0, 555.0), green)));
-    world.add(Rc::new(Quad::new(vec3(0.0, 0.0, 0.0), vec3(0.0, 555.0, 0.0), vec3(0.0, 0.0, 555.0), red)));
-    world.add(Rc::new(Quad::new(vec3(343.0, 554.0, 332.0), vec3(-130.0, 0.0, 0.0), vec3(0.0, 0.0, -105.0), light)));
-    world.add(Rc::new(Quad::new(vec3(0.0, 0.0, 0.0), vec3(555.0, 0.0, 0.0), vec3(0.0, 0.0, 555.0), white.clone())));
-    world.add(Rc::new(Quad::new(vec3(555.0, 555.0, 555.0), vec3(-555.0, 0.0, 0.0), vec3(0.0, 0.0, -555.0), white.clone())));
-    world.add(Rc::new(Quad::new(vec3(0.0, 0.0, 555.0), vec3(555.0, 0.0, 0.0), vec3(0.0, 555.0, -0.0), white)));
+    world.add(Rc::new(Quad::new(
+        vec3(555.0, 0.0, 0.0),
+        vec3(0.0, 555.0, 0.0),
+        vec3(0.0, 0.0, 555.0),
+        green,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(0.0, 0.0, 0.0),
+        vec3(0.0, 555.0, 0.0),
+        vec3(0.0, 0.0, 555.0),
+        red,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(343.0, 554.0, 332.0),
+        vec3(-130.0, 0.0, 0.0),
+        vec3(0.0, 0.0, -105.0),
+        light,
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(0.0, 0.0, 0.0),
+        vec3(555.0, 0.0, 0.0),
+        vec3(0.0, 0.0, 555.0),
+        white.clone(),
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(555.0, 555.0, 555.0),
+        vec3(-555.0, 0.0, 0.0),
+        vec3(0.0, 0.0, -555.0),
+        white.clone(),
+    )));
+    world.add(Rc::new(Quad::new(
+        vec3(0.0, 0.0, 555.0),
+        vec3(555.0, 0.0, 0.0),
+        vec3(0.0, 555.0, 0.0),
+        white.clone(),
+    )));
+
+    let mut box1: Rc<dyn Hittable> = bx(
+        &vec3(0.0, 0.0, 0.0),
+        &vec3(165.0, 330.0, 165.0),
+        white.clone(),
+    );
+    box1 = Rc::new(RotateY::new(box1, 15.0));
+    box1 = Rc::new(Translate::new(box1, vec3(265.0, 0.0, 295.0)));
+    world.add(box1);
+
+    let mut box2: Rc<dyn Hittable> = bx(&vec3(0.0, 0.0, 0.0), &vec3(165.0, 165.0, 165.0), white);
+    box2 = Rc::new(RotateY::new(box2, -18.0));
+    box2 = Rc::new(Translate::new(box2, vec3(130.0, 0.0, 65.0)));
+    world.add(box2);
 
     let mut cam = Camera::default();
 
