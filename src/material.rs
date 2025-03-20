@@ -16,6 +16,7 @@ pub enum Mat {
     Metal,
     Dielectric,
     DiffuseLight,
+    Isotropic,
 }
 
 #[derive(Clone)]
@@ -56,6 +57,26 @@ impl Material {
     pub fn lambertian_from_tex(tex: Rc<dyn Texture>) -> Material {
         Self::new(
             Mat::Lambertian,
+            Default::default(),
+            Default::default(),
+            Default::default(),
+            tex,
+        )
+    }
+
+    pub fn isotropic(albedo: Color) -> Material {
+        Self::new(
+            Mat::Isotropic,
+            Color::default(),
+            f64::default(),
+            f64::default(),
+            Rc::new(SolidColor::from_color(albedo)),
+        )
+    }
+
+    pub fn isotropic_from_tex(tex: Rc<dyn Texture>) -> Material {
+        Self::new(
+            Mat::Isotropic,
             Default::default(),
             Default::default(),
             Default::default(),
@@ -104,7 +125,8 @@ impl Material {
             Mat::Lambertian => self.scatter_lambertian(r_in, rec, attenuation, scattered),
             Mat::Metal => self.scatter_metal(r_in, rec, attenuation, scattered),
             Mat::Dielectric => self.scatter_dielectic(r_in, rec, attenuation, scattered),
-            Mat::DiffuseLight => false
+            Mat::DiffuseLight => false,
+            Mat::Isotropic => self.scatter_isotropic(r_in, rec, attenuation, scattered),
         }
     }
 
@@ -168,6 +190,18 @@ impl Material {
         true
     }
 
+    fn scatter_isotropic(
+        &self,
+        r_in: &Ray,
+        rec: &HitRecord,
+        attenuation: &mut Color,
+        scattered: &mut Ray,
+    ) -> bool {
+        *scattered = ray_with_time(rec.p, random_unit_vector(), r_in.time());
+        *attenuation = self.tex.value(rec.u, rec.v, &rec.p);
+        true
+    }
+
     fn reflectance(&self, cosine: f64, refraction_index: f64) -> f64 {
         // Use Schlick's approximation for reflectance.
         let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
@@ -177,10 +211,11 @@ impl Material {
 
     pub fn emmited(&self, u: f64, v: f64, p: &Vec3) -> Color {
         match self.material {
-            Mat::Lambertian => color(0.0, 0.0, 0.0), 
+            Mat::Lambertian => color(0.0, 0.0, 0.0),
             Mat::Metal => color(0.0, 0.0, 0.0),
             Mat::Dielectric => color(0.0, 0.0, 0.0),
             Mat::DiffuseLight => self.tex.value(u, v, p),
+            Mat::Isotropic => color(0.0, 0.0, 0.0),
         }
     }
 }
