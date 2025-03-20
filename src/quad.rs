@@ -9,6 +9,7 @@ use crate::{
     vec3::{cross, dot, unit_vector, vec3, Vec3},
 };
 
+/// Quadrilateral, primitive defined by three geometric entities.
 pub struct Quad {
     q: Vec3,
     u: Vec3,
@@ -20,6 +21,14 @@ pub struct Quad {
     d: f64,
 }
 impl Quad {
+    /// Creates a new quadrilateral
+    /// 
+    /// # Arguments
+    /// 
+    /// * `q` - Corner point of the quadrilateral
+    /// * `u` - Vector along first edge
+    /// * `v` - Vector along second edge
+    /// * `mat` - Material of quadrilateral
     pub fn new(q: Vec3, u: Vec3, v: Vec3, mat: Material) -> Self {
         let n = cross(&u, &v);
         let normal = unit_vector(&n);
@@ -37,17 +46,23 @@ impl Quad {
         quad
     }
 
-    pub fn set_bounding_box(&mut self) {
-        // Compute the bounding box of all four vertices.
+    /// Compute the bounding box of all four vertices.
+    pub fn set_bounding_box(&mut self) {       
         let bbox_diagonal1 = Aabb::from_point(&self.q, &(self.q + self.u + self.v));
         let bbox_diagonal2 = Aabb::from_point(&(self.q + self.u), &(self.q + self.v));
         self.bbox = Aabb::from_aabb(&bbox_diagonal1, &bbox_diagonal2);
     }
 
+    /// Given the hit point in plane coordinates, return false if it is outside the
+    /// primitive, otherwise set the hit record UV coordinates and return true
+    /// 
+    /// # Arguments
+    /// 
+    /// * `a` - First coordinate of hit point
+    /// * `b` - Second coordinate of hit point
+    /// * `rec` - Hit record
     pub fn is_interior(a: f64, b: f64, rec: &mut HitRecord) -> bool {
-        let unit_interval = Interval::new(0.0, 1.0);
-        // Given the hit point in plane coordinates, return false if it is outside the
-        // primitive, otherwise set the hit record UV coordinates and return true
+        let unit_interval = Interval::new(0.0, 1.0); 
 
         if !unit_interval.contains(a) || !unit_interval.contains(b) {
             return false;

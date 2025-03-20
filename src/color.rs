@@ -7,8 +7,10 @@ pub struct Color {
     pub b: f64,
 }
 
-pub fn color(r: f64, g: f64, b: f64) -> Color {
-    Color { r, g, b }
+impl Color {
+    pub fn new(r: f64, g: f64, b: f64) -> Self {
+        Color { r, g, b }
+    }
 }
 
 fn linear_to_gamma(linear_component: f64) -> f64 {
@@ -82,6 +84,6 @@ impl std::ops::Mul for Color {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        color(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
+        Color::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
     }
 }

@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crate::{
-    color::{color, Color},
+    color::Color,
     ray::{ray_with_time, Ray},
     rtweekend::random_double,
     sphere::HitRecord,
@@ -168,7 +168,7 @@ impl Material {
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
-        *attenuation = color(1.0, 1.0, 1.0);
+        *attenuation = Color::new(1.0, 1.0, 1.0);
         let ri = if rec.front_face {
             1.0 / self.refraction_index
         } else {
@@ -211,11 +211,11 @@ impl Material {
 
     pub fn emmited(&self, u: f64, v: f64, p: &Vec3) -> Color {
         match self.material {
-            Mat::Lambertian => color(0.0, 0.0, 0.0),
-            Mat::Metal => color(0.0, 0.0, 0.0),
-            Mat::Dielectric => color(0.0, 0.0, 0.0),
+            Mat::Lambertian => Color::new(0.0, 0.0, 0.0),
+            Mat::Metal => Color::new(0.0, 0.0, 0.0),
+            Mat::Dielectric => Color::new(0.0, 0.0, 0.0),
             Mat::DiffuseLight => self.tex.value(u, v, p),
-            Mat::Isotropic => color(0.0, 0.0, 0.0),
+            Mat::Isotropic => Color::new(0.0, 0.0, 0.0),
         }
     }
 }

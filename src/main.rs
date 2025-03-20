@@ -2,7 +2,7 @@ use std::{i32, rc::Rc};
 
 use bvh::BvhNode;
 use camera::Camera;
-use color::color;
+use color::Color;
 use constant_medium::ConstantMedium;
 use hittable_list::{HittableList, RotateY, Translate};
 use material::Material;
@@ -33,10 +33,10 @@ fn bouncing_spheres() {
 
     let checker = Rc::new(CheckerTexture::from_colors(
         0.32,
-        color(0.2, 0.3, 0.1),
-        color(0.9, 0.9, 0.9),
+        Color::new(0.2, 0.3, 0.1),
+        Color::new(0.9, 0.9, 0.9),
     ));
-    //let ground_material = Material::lambertian(color(0.5, 0.5, 0.5));
+    //let ground_material = Material::lambertian(Color::new(0.5, 0.5, 0.5));
     world.add(Rc::new(Sphere::new(
         vec3(0.0, -1000.0, 0.0),
         1000.0,
@@ -83,10 +83,10 @@ fn bouncing_spheres() {
     let material1 = Material::dielectric(rtweekend::REFRACTION_GLASS);
     world.add(Rc::new(Sphere::new(vec3(0.0, 1.0, 0.0), 1.0, material1)));
 
-    let material2 = Material::lambertian(color(0.4, 0.2, 0.1));
+    let material2 = Material::lambertian(Color::new(0.4, 0.2, 0.1));
     world.add(Rc::new(Sphere::new(vec3(-4.0, 1.0, 0.0), 1.0, material2)));
 
-    let material3 = Material::metal(color(0.7, 0.6, 0.5), 0.0);
+    let material3 = Material::metal(Color::new(0.7, 0.6, 0.5), 0.0);
     world.add(Rc::new(Sphere::new(vec3(4.0, 1.0, 0.0), 1.0, material3)));
 
     let node = BvhNode::from_list(&mut world);
@@ -97,7 +97,7 @@ fn bouncing_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = color(0.70, 0.80, 1.00);
+    cam.background = Color::new(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(13.0, 2.0, 3.0);
@@ -115,8 +115,8 @@ fn checkered_spheres() {
 
     let checker = Rc::new(CheckerTexture::from_colors(
         0.32,
-        color(0.2, 0.3, 0.1),
-        color(0.9, 0.9, 0.9),
+        Color::new(0.2, 0.3, 0.1),
+        Color::new(0.9, 0.9, 0.9),
     ));
     world.add(Rc::new(Sphere::new(
         vec3(0.0, -10.0, 0.0),
@@ -134,7 +134,7 @@ fn checkered_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = color(0.70, 0.80, 1.00);
+    cam.background = Color::new(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(13.0, 2.0, 3.0);
@@ -156,7 +156,7 @@ fn earth() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = color(0.70, 0.80, 1.00);
+    cam.background = Color::new(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(0.0, 0.0, 12.0);
@@ -188,7 +188,7 @@ fn perlin_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = color(0.70, 0.80, 1.00);
+    cam.background = Color::new(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(13.0, 2.0, 3.0);
@@ -204,11 +204,11 @@ fn quads() {
     let mut world = HittableList::default();
 
     // Materials
-    let left_red = Material::lambertian(color(1.0, 0.2, 0.2));
-    let back_green = Material::lambertian(color(0.2, 1.0, 0.2));
-    let right_blue = Material::lambertian(color(0.2, 0.2, 1.0));
-    let upper_orange = Material::lambertian(color(1.0, 0.5, 0.0));
-    let lower_teal = Material::lambertian(color(0.2, 0.8, 0.8));
+    let left_red = Material::lambertian(Color::new(1.0, 0.2, 0.2));
+    let back_green = Material::lambertian(Color::new(0.2, 1.0, 0.2));
+    let right_blue = Material::lambertian(Color::new(0.2, 0.2, 1.0));
+    let upper_orange = Material::lambertian(Color::new(1.0, 0.5, 0.0));
+    let lower_teal = Material::lambertian(Color::new(0.2, 0.8, 0.8));
 
     // Quads
     world.add(Rc::new(Quad::new(
@@ -248,7 +248,7 @@ fn quads() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = color(0.70, 0.80, 1.00);
+    cam.background = Color::new(0.70, 0.80, 1.00);
 
     cam.vfov = 80.0;
     cam.lookfrom = vec3(0.0, 0.0, 9.0);
@@ -275,7 +275,7 @@ fn simple_light() {
         Material::lambertian_from_tex(pertext),
     )));
 
-    let difflight = Material::diffuse_light(color(4.0, 4.0, 4.0));
+    let difflight = Material::diffuse_light(Color::new(4.0, 4.0, 4.0));
     world.add(Rc::new(Sphere::new(
         vec3(0.0, 7.0, 0.0),
         2.0,
@@ -294,7 +294,7 @@ fn simple_light() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = color(0.0, 0.0, 0.0);
+    cam.background = Color::new(0.0, 0.0, 0.0);
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(26.0, 3.0, 6.0);
@@ -309,10 +309,10 @@ fn simple_light() {
 fn cornell_box() {
     let mut world = HittableList::default();
 
-    let red = Material::lambertian(color(0.65, 0.05, 0.05));
-    let white = Material::lambertian(color(0.73, 0.73, 0.73));
-    let green = Material::lambertian(color(0.12, 0.45, 0.15));
-    let light = Material::diffuse_light(color(15.0, 15.0, 15.0));
+    let red = Material::lambertian(Color::new(0.65, 0.05, 0.05));
+    let white = Material::lambertian(Color::new(0.73, 0.73, 0.73));
+    let green = Material::lambertian(Color::new(0.12, 0.45, 0.15));
+    let light = Material::diffuse_light(Color::new(15.0, 15.0, 15.0));
 
     world.add(Rc::new(Quad::new(
         vec3(555.0, 0.0, 0.0),
@@ -371,7 +371,7 @@ fn cornell_box() {
     cam.image_width = 600;
     cam.samples_per_pixel = 200;
     cam.max_depth = 50;
-    cam.background = color(0.0, 0.0, 0.0);
+    cam.background = Color::new(0.0, 0.0, 0.0);
 
     cam.vfov = 40.0;
     cam.lookfrom = vec3(278.0, 278.0, -800.0);
@@ -386,10 +386,10 @@ fn cornell_box() {
 fn cornell_smoke() {
     let mut world = HittableList::default();
 
-    let red = Material::lambertian(color(0.65, 0.05, 0.05));
-    let white = Material::lambertian(color(0.73, 0.73, 0.73));
-    let green = Material::lambertian(color(0.12, 0.45, 0.15));
-    let light = Material::diffuse_light(color(7.0, 7.0, 7.0));
+    let red = Material::lambertian(Color::new(0.65, 0.05, 0.05));
+    let white = Material::lambertian(Color::new(0.73, 0.73, 0.73));
+    let green = Material::lambertian(Color::new(0.12, 0.45, 0.15));
+    let light = Material::diffuse_light(Color::new(7.0, 7.0, 7.0));
 
     world.add(Rc::new(Quad::new(
         vec3(555.0, 0.0, 0.0),
@@ -443,21 +443,21 @@ fn cornell_smoke() {
     world.add(Rc::new(ConstantMedium::new(
         box1,
         0.01,
-        color(0.0, 0.0, 0.0),
+        Color::new(0.0, 0.0, 0.0),
     )));
     world.add(Rc::new(ConstantMedium::new(
         box2,
         0.01,
-        color(1.0, 1.0, 1.0),
+        Color::new(1.0, 1.0, 1.0),
     )));
 
     let mut cam = Camera::default();
 
     cam.aspect_ratio = 1.0;
-    cam.image_width = 600;
-    cam.samples_per_pixel = 200;
-    cam.max_depth = 50;
-    cam.background = color(0.0, 0.0, 0.0);
+    cam.image_width = 800;
+    cam.samples_per_pixel = 10000;
+    cam.max_depth = 40;
+    cam.background = Color::new(0.0, 0.0, 0.0);
 
     cam.vfov = 40.0;
     cam.lookfrom = vec3(278.0, 278.0, -800.0);
@@ -469,8 +469,57 @@ fn cornell_smoke() {
     cam.render(&world);
 }
 
+fn final_scene(image_width: i32, samples_per_pixel: i32, max_depth: i32) {
+    let mut boxes1 = HittableList::default();
+    let ground = Material::lambertian(Color::new(0.48, 0.83, 0.53));
+
+    let boxes_per_side = 20;
+    for i in 0..boxes_per_side {
+        for j in 0..boxes_per_side {
+            let w = 100.0;  // width of boxes
+            let x0 = -1000.0 + i as f64 * w;
+            let z0 = -1000.0 + j as f64 * w;
+            let y0 = 0.0;
+            let x1 = x0 + w;
+            let y1 = random_double_from(1.0, 101.0);    // give boxes a random heigth
+            let z1 = z0 + w;
+
+            boxes1.add(bx(&vec3(x0, y0, z0), &vec3(x1, y1, z1), ground.clone()));
+        }
+    }
+
+    let mut world = HittableList::default();
+
+    world.add(Rc::new(BvhNode::from_list(&mut boxes1)));
+
+    let light = Material::diffuse_light(Color::new(7.0, 7.0, 7.0));
+    world.add(Rc::new(Quad::new(
+        vec3(123.0, 554.0, 147.0),
+        vec3(300.0, 0.0, 0.0),
+        vec3(0.0, 0.0, 265.0),
+        light,
+    )));
+
+    let mut cam = Camera::default();
+
+    cam.aspect_ratio = 1.0;
+    cam.image_width = image_width;
+    cam.samples_per_pixel = samples_per_pixel;
+    cam.max_depth = max_depth;
+    cam.background = Color::new(0.0, 0.0, 0.0);
+
+    cam.vfov = 40.0;
+    cam.lookfrom = vec3(478.0, 278.0, -600.0);
+    cam.lookat = vec3(278.0, 278.0, 0.0);
+    cam.vup = vec3(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+}
+
 fn main() {
-    match 8 {
+    match 10 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
@@ -479,6 +528,7 @@ fn main() {
         6 => simple_light(),
         7 => cornell_box(),
         8 => cornell_smoke(),
-        i32::MIN..=i32::MAX => !panic!(),
+        9 => final_scene(800, 10000, 40),
+        i32::MIN..=i32::MAX => final_scene(400, 250, 4),
     }
 }

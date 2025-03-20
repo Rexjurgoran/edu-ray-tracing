@@ -2,9 +2,7 @@ use std::rc::Rc;
 
 use image::{DynamicImage, GenericImageView, ImageReader};
 
-use crate::{
-    color::{color, Color}, interval::Interval, perlin::Perlin, vec3::Vec3
-};
+use crate::{color::Color, interval::Interval, perlin::Perlin, vec3::Vec3};
 
 pub trait Texture {
     fn value(&self, u: f64, v: f64, p: &Vec3) -> Color;
@@ -21,7 +19,7 @@ impl SolidColor {
 
     pub fn from_rgb(red: f64, green: f64, blue: f64) -> SolidColor {
         Self {
-            albedo: color(red, green, blue),
+            albedo: Color::new(red, green, blue),
         }
     }
 }
@@ -93,7 +91,7 @@ impl Texture for ImageTexture {
     fn value(&self, u: f64, v: f64, p: &Vec3) -> Color {
         // If we have no texture data, then return solid cyan as a debugging aid.
         if self.image.height() <= 0 {
-            return color(0.0, 1.0, 1.0);
+            return Color::new(0.0, 1.0, 1.0);
         }
 
         // Clamp input texture coordinates to [0,1] x [1,0]
@@ -105,7 +103,7 @@ impl Texture for ImageTexture {
         let pixel = self.image.get_pixel(i, j);
 
         let color_scale = 1.0 / 255.0;
-        color(
+        Color::new(
             color_scale * pixel[0] as f64,
             color_scale * pixel[1] as f64,
             color_scale * pixel[2] as f64,
@@ -120,12 +118,16 @@ pub struct NoiseTexture {
 
 impl NoiseTexture {
     pub fn new(scale: f64) -> Self {
-        NoiseTexture { noise: Perlin::new(), scale }
+        NoiseTexture {
+            noise: Perlin::new(),
+            scale,
+        }
     }
 }
 
 impl Texture for NoiseTexture {
     fn value(&self, u: f64, v: f64, p: &Vec3) -> Color {
-        color(0.5, 0.5, 0.5)  * (1.0 + f64::sin(self.scale * p.z + 10.0 * self.noise.turb(p, 7))) 
+        Color::new(0.5, 0.5, 0.5)
+            * (1.0 + f64::sin(self.scale * p.z + 10.0 * self.noise.turb(p, 7)))
     }
 }

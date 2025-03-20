@@ -1,8 +1,7 @@
 use core::f64;
-use std::f64::INFINITY;
 
 use crate::{
-    color::{color, write_color, Color},
+    color::{Color, write_color},
     interval::Interval,
     ray::{ray_with_time, Ray},
     rtweekend::{degrees_to_radians, random_double},
@@ -74,7 +73,7 @@ impl Camera {
         print!("P3\n{} {}\n255\n", self.image_width, self.image_height);
         for j in 0..self.image_height {
             for i in 0..self.image_width {
-                let mut pixel_color = color(0.0, 0.0, 0.0);
+                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _sample in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
                     pixel_color += self.ray_color(&r, self.max_depth, world)
@@ -156,7 +155,7 @@ impl Camera {
     pub fn ray_color(&self, r: &Ray, depth: i32, world: &dyn Hittable) -> Color {
         // If we've exceeded the ray bounce limit, no more light is gathered
         if depth <= 0 {
-            return color(0.0, 0.0, 0.0);
+            return Color::new(0.0, 0.0, 0.0);
         }
 
         let mut rec = HitRecord::default();

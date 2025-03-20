@@ -1,7 +1,7 @@
 use std::ops;
 
 use crate::{
-    color::{color, Color},
+    color::Color,
     rtweekend::{random_double, random_double_from},
 };
 #[derive(Default, Clone, Copy)]
@@ -25,7 +25,7 @@ impl Vec3 {
     }
 
     pub fn to_color(&self) -> Color {
-        color(self.x, self.y, self.z)
+        Color::new(self.x, self.y, self.z)
     }
 
     pub fn near_zero(&self) -> bool {
@@ -241,8 +241,9 @@ pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
 pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
     vec3(
         u.y * v.z - u.z * v.y,
-        u.z * v.x - u.x * v.z, 
-        u.x * v.y - u.y * v.x)
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x,
+    )
 }
 
 pub fn random() -> Vec3 {
@@ -267,9 +268,13 @@ pub fn random_unit_vector() -> Vec3 {
     }
 }
 
-pub fn random_in_unit_disk() -> Vec3{
+pub fn random_in_unit_disk() -> Vec3 {
     loop {
-        let p = vec3(random_double_from(-1.0, 1.0), random_double_from(-1.0, 1.0), 0.0);
+        let p = vec3(
+            random_double_from(-1.0, 1.0),
+            random_double_from(-1.0, 1.0),
+            0.0,
+        );
         if p.length_squared() < 1.0 {
             return p;
         }
