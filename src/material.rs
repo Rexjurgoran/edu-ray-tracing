@@ -168,7 +168,7 @@ impl Material {
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
-        *attenuation = Color::new(1.0, 1.0, 1.0);
+        *attenuation = Color::white();
         let ri = if rec.front_face {
             1.0 / self.refraction_index
         } else {
@@ -211,11 +211,11 @@ impl Material {
 
     pub fn emmited(&self, u: f64, v: f64, p: &Vec3) -> Color {
         match self.material {
-            Mat::Lambertian => Color::new(0.0, 0.0, 0.0),
-            Mat::Metal => Color::new(0.0, 0.0, 0.0),
-            Mat::Dielectric => Color::new(0.0, 0.0, 0.0),
+            Mat::Lambertian => Color::black(),
+            Mat::Metal => Color::black(),
+            Mat::Dielectric => Color::black(),
             Mat::DiffuseLight => self.tex.value(u, v, p),
-            Mat::Isotropic => Color::new(0.0, 0.0, 0.0),
+            Mat::Isotropic => Color::black(),
         }
     }
 }

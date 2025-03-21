@@ -11,6 +11,12 @@ impl Color {
     pub fn new(r: f64, g: f64, b: f64) -> Self {
         Color { r, g, b }
     }
+    pub fn white() -> Self {
+        Color::new(1.0, 1.0, 1.0)
+    }
+    pub fn black() -> Self {
+        Color::new(0.0, 0.0, 0.0)
+    }
 }
 
 fn linear_to_gamma(linear_component: f64) -> f64 {

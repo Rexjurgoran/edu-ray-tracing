@@ -526,6 +526,60 @@ fn final_scene(image_width: i32, samples_per_pixel: i32, max_depth: i32) {
         Material::metal(Color::new(0.8, 0.8, 0.9), 1.0),
     )));
 
+    // Create a glass sphere filled with smoke
+    let mut boundary = Rc::new(Sphere::new(
+        vec3(360.0, 150.0, 145.0),
+        70.0,
+        Material::dielectric(REFRACTION_GLASS),
+    ));
+    world.add(boundary.clone());
+    world.add(Rc::new(ConstantMedium::new(
+        boundary,
+        0.2,
+        Color::new(0.2, 0.4, 0.9),
+    )));
+
+    // Create fog across the whole scene
+    boundary = Rc::new(Sphere::new(
+        vec3(0.0, 0.0, 0.0),
+        5000.0,
+        Material::dielectric(REFRACTION_GLASS),
+    ));
+    world.add(Rc::new(ConstantMedium::new(
+        boundary,
+        0.0001,
+        Color::white(),
+    )));
+
+    // Create a globe
+    let emat = Material::lambertian_from_tex(Rc::new(ImageTexture::new("misc\\earthmap.jpg")));
+    world.add(Rc::new(Sphere::new(vec3(400.0, 200.0, 400.0), 100.0, emat)));
+
+    // Create a sphere with noise
+    let pertext = Rc::new(NoiseTexture::new(0.2));
+    world.add(Rc::new(Sphere::new(
+        vec3(220.0, 280.0, 300.0),
+        80.0,
+        Material::lambertian_from_tex(pertext),
+    )));
+
+    // Create cube of spheres and move in scene
+    let mut boxes2 = HittableList::default();
+    let white = Material::lambertian(Color::new(0.73, 0.73, 0.73));
+    for j in 0..1000 {
+        boxes2.add(Rc::new(Sphere::new(
+            random_from(0.0, 165.0),
+            10.0,
+            white.clone(),
+        )));
+    }
+
+    world.add(Rc::new(Translate::new(
+        Rc::new(RotateY::new(Rc::new(boxes2), 15.0)),
+        vec3(-100.0, 270.0, 395.0),
+    )));
+
+    // Create camera and render
     let mut cam = Camera::default();
 
     cam.aspect_ratio = 1.0;
