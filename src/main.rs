@@ -7,7 +7,7 @@ use constant_medium::ConstantMedium;
 use hittable_list::{HittableList, RotateY, Translate};
 use material::Material;
 use quad::{bx, Quad};
-use rtweekend::{random_double, random_double_from};
+use rtweekend::{random_double, random_double_from, REFRACTION_GLASS};
 use sphere::{Hittable, Sphere};
 use texture::{CheckerTexture, ImageTexture, NoiseTexture};
 use vec3::{random, random_from, vec3};
@@ -470,18 +470,19 @@ fn cornell_smoke() {
 }
 
 fn final_scene(image_width: i32, samples_per_pixel: i32, max_depth: i32) {
+    // Create a grid of 20x20 boxes of different height as floor
     let mut boxes1 = HittableList::default();
     let ground = Material::lambertian(Color::new(0.48, 0.83, 0.53));
 
     let boxes_per_side = 20;
     for i in 0..boxes_per_side {
         for j in 0..boxes_per_side {
-            let w = 100.0;  // width of boxes
+            let w = 100.0; // width of boxes
             let x0 = -1000.0 + i as f64 * w;
             let z0 = -1000.0 + j as f64 * w;
             let y0 = 0.0;
             let x1 = x0 + w;
-            let y1 = random_double_from(1.0, 101.0);    // give boxes a random heigth
+            let y1 = random_double_from(1.0, 101.0); // give boxes a random heigth
             let z1 = z0 + w;
 
             boxes1.add(bx(&vec3(x0, y0, z0), &vec3(x1, y1, z1), ground.clone()));
@@ -492,12 +493,37 @@ fn final_scene(image_width: i32, samples_per_pixel: i32, max_depth: i32) {
 
     world.add(Rc::new(BvhNode::from_list(&mut boxes1)));
 
+    // Create a rectangular light source above all other components
     let light = Material::diffuse_light(Color::new(7.0, 7.0, 7.0));
     world.add(Rc::new(Quad::new(
         vec3(123.0, 554.0, 147.0),
         vec3(300.0, 0.0, 0.0),
         vec3(0.0, 0.0, 265.0),
         light,
+    )));
+
+    // Create a moving sphere
+    let center1 = vec3(400.0, 400.0, 200.0);
+    let center2 = center1 + vec3(30.0, 0.0, 0.0);
+
+    let sphere_material = Material::lambertian(Color::new(0.7, 0.3, 0.1));
+    world.add(Rc::new(Sphere::moving(
+        center1,
+        center2,
+        50.0,
+        sphere_material,
+    )));
+
+    // Create a stationary glass and a stationary metal sphere
+    world.add(Rc::new(Sphere::new(
+        vec3(260.0, 150.0, 45.0),
+        50.0,
+        Material::dielectric(REFRACTION_GLASS),
+    )));
+    world.add(Rc::new(Sphere::new(
+        vec3(0.0, 150.0, 145.0),
+        50.0,
+        Material::metal(Color::new(0.8, 0.8, 0.9), 1.0),
     )));
 
     let mut cam = Camera::default();
