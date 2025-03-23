@@ -294,7 +294,7 @@ fn simple_light() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
-    cam.background = Color::new(0.0, 0.0, 0.0);
+    cam.background = Color::black();
 
     cam.vfov = 20.0;
     cam.lookfrom = vec3(26.0, 3.0, 6.0);
@@ -599,7 +599,7 @@ fn final_scene(image_width: i32, samples_per_pixel: i32, max_depth: i32) {
 }
 
 fn main() {
-    match 10 {
+    match 1 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
@@ -608,7 +608,7 @@ fn main() {
         6 => simple_light(),
         7 => cornell_box(),
         8 => cornell_smoke(),
-        9 => final_scene(800, 10000, 40),
+        9 => final_scene(2560, 10000, 40),
         i32::MIN..=i32::MAX => final_scene(400, 250, 4),
     }
 }

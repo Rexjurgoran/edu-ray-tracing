@@ -73,7 +73,7 @@ impl Aabb {
         }
     }
 
-    pub fn hit(&self, r: Ray, mut ray_t: Interval) -> bool {
+    pub fn hit(&self, r: &Ray, mut ray_t: Interval) -> bool {
         let ray_orig = r.origin();
         let ray_dir = r.direction();
 

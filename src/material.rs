@@ -94,6 +94,16 @@ impl Material {
         )
     }
 
+    pub fn diffuse_light_from_tex(tex: Rc<dyn Texture>) -> Self {
+        Self::new(
+            Mat::DiffuseLight,
+            Default::default(),
+            Default::default(),
+            Default::default(),
+            tex,
+        )
+    }
+
     pub fn dielectric(refraction_index: f64) -> Material {
         Self::new(
             Mat::Dielectric,

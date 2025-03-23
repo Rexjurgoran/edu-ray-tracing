@@ -1,62 +1,83 @@
 use std::{cmp::Ordering, rc::Rc};
 
 use crate::{
-    aabb::Aabb, hittable_list::HittableList, interval::Interval, ray::Ray, rtweekend::random_int_from, sphere::{HitRecord, Hittable}
+    aabb::Aabb,
+    hittable_list::HittableList,
+    interval::Interval,
+    ray::Ray,
+    rtweekend::random_int_from,
+    sphere::{HitRecord, Hittable},
 };
 
+/// Singular node of bounding volume hierarchy
 pub struct BvhNode {
-    left: Rc<dyn Hittable>,
-    right: Rc<dyn Hittable>,
-    bbox: Aabb,
+    pub left: Rc<dyn Hittable>,
+    pub right: Rc<dyn Hittable>,
+    pub bbox: Aabb,
 }
 
 impl BvhNode {
-    pub fn new(objects: &mut Vec<Rc<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
+    /// Create new node of bounding volume hierarchy
+    ///
+    /// # Arguments
+    ///
+    /// * `objects` - Array of hittable objects
+    /// * `start` - Start index of objects contained within node
+    /// * `end` - End index of objects contained within node
+    pub fn new(
+        objects: &mut Vec<Rc<dyn Hittable>>,
+        start: usize,
+        end: usize,
+        level: i32,
+    ) -> BvhNode {
         // Build the bounding box of the span of source objects.
-        // let mut bbox = Aabb::empty();
+        let mut bbox = Aabb::empty();
 
         // Optimization that just don't seem to work
-        // for object_index in start..end {
-        //     bbox = Aabb::from_aabb(&bbox, objects[object_index].bounding_box());
-        // }
+        for object_index in start..end {
+            bbox = Aabb::from_aabb(&bbox, objects[object_index].bounding_box());
+        }
 
-        let object_span = end - start;
-        let left;
-        let right;
-        
-        // Part of optimization code
-        // let axis = bbox.longest_axis();
-        let axis = random_int_from(0, 2);
+        // Select axis for splitting
+        let axis = bbox.longest_axis();
 
-        let comparator = if axis == 0 {
-            Self::box_x_compare
-        } else if axis == 1 {
-            Self::box_y_compare
-        } else {
-            Self::box_z_compare
+        // Select comparator depending on selected axis
+        let comparator = match axis {
+            0 => Self::box_x_compare,
+            1 => Self::box_y_compare,
+            _ => Self::box_z_compare,
         };
 
-        if object_span == 1 {
-            left = objects[start].clone();
-            right = objects[start].clone();
-        } else if object_span == 2 {
-            left = objects[start].clone();
-            right = objects[start + 1].clone();
-        } else {
-            objects.sort_by(comparator);
+        // Select left and right nodes depending on length of objects
+        let object_span = end - start;
 
-            let mid = start + object_span / 2;
-            left = Rc::new(BvhNode::new(objects, start, mid));
-            right = Rc::new(BvhNode::new(objects, mid, end));
+        match object_span {
+            1 => BvhNode {
+                left: objects[start].clone(),
+                right: objects[start].clone(),
+                bbox,
+            },
+            2 => BvhNode {
+                left: objects[start].clone(),
+                right: objects[start + 1].clone(),
+                bbox,
+            },
+            _ => {
+                objects[start..end].sort_by(comparator);
+                let mid = start + object_span / 2;
+                BvhNode {
+                    left: Rc::new(BvhNode::new(objects, start, mid, level + 1)),
+                    right: Rc::new(BvhNode::new(objects, mid, end, level + 1)),
+                    bbox,
+                }
+            }
         }
-        let bbox = Aabb::from_aabb(left.bounding_box(), right.bounding_box());
-        BvhNode { left, right, bbox }
     }
 
     /// Constructs a BVH node from a hittable list instance
     pub fn from_list(list: &mut HittableList) -> BvhNode {
         let end = list.objects.len();
-        BvhNode::new(&mut list.objects, 0, end)
+        BvhNode::new(&mut list.objects, 0, end, 0)
     }
 
     fn box_compare(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>, axis_index: i32) -> Ordering {
@@ -83,7 +104,7 @@ impl BvhNode {
 
 impl Hittable for BvhNode {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
-        if !self.bbox.hit(r.clone(), ray_t) {
+        if !self.bbox.hit(r, ray_t) {
             return false;
         }
 
