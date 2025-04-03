@@ -1,11 +1,10 @@
 # Ray Tracing using Rust
 
-In this project I am building ray tracing in Rust by following a turtorial series.
+In this project I am building ray tracing in Rust by following the “Ray Tracing in One Weekend Series” by Peter Shirley, Trevor David Black and Steve Hollasch.
 
 ## Ray Tracing in One Weekend
 
-First I adapted the [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) project using Rust.
-This yielded this final render as result.
+First I adapted the [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) project using Rust. This yielded this final render as result.
 
 <p align="center">
 	<img src="misc/FinalRender.png" width="1200" alt="Final Render">
@@ -13,9 +12,8 @@ This yielded this final render as result.
 
 ## Ray Tracing: The Next Week
 
-Currently I am working on adapting the [next book](https://raytracing.github.io/books/RayTracingTheNextWeek.html) in the series.
-The current state of my efforts is this:
+After that I adapted [_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html), the next book in the series. The result was a final scene to test all newly implemented features.
 
 <p align="center">
-	<img src="misc/CurrentState.png" width="1200" alt="Current State">
+	<img src="misc/FinalScene.png" width="1200" alt="Final Scene">
 </p>
